@@ -4,24 +4,24 @@
     {
         private BawBagBot _bot;
 
-        public async void Start()
+        public void Start()
         {
             var config = new BawBagBotConfiguration
                 {
                     Name = "BawBag",
                     Password = "B4wB4g",
                     Url = "http://debauchery.apphb.com",
-                    Rooms = new[] { "Debauchery", "BawBag" }
+                    Rooms = new[] { "BawBag", "Debauchery" }
                 };
 
             _bot = new BawBagBot(config);
 
-            await _bot.Start();
+            _bot.Start().Wait();
         }
 
-        public async void Stop()
+        public void Stop()
         {
-            await _bot.Stop();
+            _bot.Stop().Wait();
         }
     }
 }

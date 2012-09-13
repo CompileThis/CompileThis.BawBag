@@ -4,7 +4,7 @@
     {
         int Priority { get; }
         bool ContinueProcessing { get; }
-        bool Execute();
+        MessageHandlerResult Execute(Message message);
         void Initialize();
     }
 }

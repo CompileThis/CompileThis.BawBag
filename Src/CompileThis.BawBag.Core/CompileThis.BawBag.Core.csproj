@@ -55,8 +55,19 @@
   <ItemGroup>
     <Compile Include="BawBagBot.cs" />
     <Compile Include="BawBagBotConfiguration.cs" />
+    <Compile Include="Handlers\ChooseHandler.cs" />
     <Compile Include="IMessageHandler.cs" />
+    <Compile Include="JabbrTypeConverter.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="MessageHandlerManager.cs" />
+    <Compile Include="MessageHandlerResult.cs" />
+    <Compile Include="MessageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Room.cs" />
+    <Compile Include="RoomCollection.cs" />
+    <Compile Include="User.cs" />
+    <Compile Include="UserCollection.cs" />
+    <Compile Include="UserStatus.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
