@@ -32,9 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="JabbR.Client">
-      <HintPath>..\..\Lib\JabbR.Client\JabbR.Client.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.4.5.9\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -58,9 +55,17 @@
     <Compile Include="Handlers\ChooseHandler.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="JabbrTypeConverter.cs" />
+    <Compile Include="Jabbr\ActionReceivedEventArgs.cs" />
+    <Compile Include="Jabbr\JabbrClient.cs" />
+    <Compile Include="Jabbr\JabbrRoom.cs" />
+    <Compile Include="Jabbr\JabbrRoomSummary.cs" />
+    <Compile Include="Jabbr\LogOnEventArgs.cs" />
+    <Compile Include="Jabbr\MessageReceivedEventArgs.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageHandlerManager.cs" />
     <Compile Include="MessageHandlerResult.cs" />
+    <Compile Include="MessageHandlerResultResponseType.cs" />
+    <Compile Include="MessageResponse.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Room.cs" />

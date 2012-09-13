@@ -1,81 +1,49 @@
 ﻿namespace CompileThis.BawBag
 {
-    using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    using JabbR.Client;
-
     using NLog;
-    using System.Text.RegularExpressions;
+
+    using CompileThis.BawBag.Jabbr;
 
     public class BawBagBot
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly BawBagBotConfiguration _configuration;
-        private readonly JabbRClient _client;
+        private readonly JabbrClient _client;
         private readonly MessageHandlerManager _messageManager;
         private readonly RoomCollection _rooms;
 
         public BawBagBot(BawBagBotConfiguration configuration)
         {
             _configuration = configuration;
-            _client = new JabbRClient(configuration.Url);
+            _client = new JabbrClient(configuration.Url);
             _messageManager = new MessageHandlerManager(_client);
             _rooms = new RoomCollection();
         }
 
         public async Task Start()
         {
-            var joinedRooms = new HashSet<string>();
+            Log.Info("Starting BawBag");
 
             _client.MessageReceived += MessageReceived;
-            _client.MeMessageReceived += MeMessageReceived;
+            _client.ActionReceived += ActionReceived;
 
-            var logOnInfo = await _client.Connect(_configuration.Name, _configuration.Password);
-            foreach (var jabbrRoom in logOnInfo.Rooms)
-            {
-                joinedRooms.Add(jabbrRoom.Name);
-            }
+            Log.Trace("Connecting to server.");
 
-            foreach (var roomName in _configuration.Rooms)
-            {
-                if (!joinedRooms.Contains(roomName))
-                {
-                    await _client.JoinRoom(roomName);
-                    joinedRooms.Add(roomName);
-                }
-            }
+            await _client.Connect(_configuration.Name, _configuration.Password);
 
-            foreach (var roomName in joinedRooms)
-            {
-                var jabbrRoom = await _client.GetRoomInfo(roomName);
-                var room = JabbrTypeConverter.ConvertRoom(jabbrRoom);
-
-                _rooms.Add(room);
-            }
+            Log.Info("Started BawBag");
         }
 
         public async Task Stop()
         {
             _client.MessageReceived -= MessageReceived;
-            _client.MeMessageReceived -= MeMessageReceived;
-
-            _rooms.Clear();
+            _client.ActionReceived -= ActionReceived;
 
             await LeaveRooms();
-
-            try
-            {
-                await _client.LogOut();
-            }
-            catch (Exception ex)
-            {
-                Log.DebugException("Failed to sign out", ex);
-            }
-
-            _client.Disconnect();
+            await _client.Disconnect();
         }
 
         private async Task LeaveRooms()
@@ -86,53 +54,50 @@
             foreach (var room in rooms)
             {
                 Log.Trace("Leaving room '{0}'.", room);
-                await _client.LeaveRoom(room);
+                //await _client.LeaveRoom(room);
                 Log.Trace("Left room '{0}'.", room);
             }
         }
 
-        private void MessageReceived(JabbR.Client.Models.Message jabbrMessage, string roomName)
+        private void MessageReceived(object sender, MessageReceivedEventArgs e)
         {
-            var room = _rooms[roomName];
-            var user = room.Users[jabbrMessage.User.Name];
+            //var room = _rooms[roomName];
+            //var user = room.Users[jabbrMessage.User.Name];
 
-            var text = jabbrMessage.Content;
-            var isBotAddressed = false;
+            //var text = jabbrMessage.Content;
+            //var isBotAddressed = false;
 
-            var addressMatch = Regex.Match(text, "^@?BawBag[,:](.*)$", RegexOptions.IgnoreCase);
-            if (addressMatch.Success)
-            {
-                isBotAddressed = true;
-                text = addressMatch.Groups[1].Value;
-            }
+            //var addressMatch = Regex.Match(text, "^@?BawBag[,: ](.*)$", RegexOptions.IgnoreCase);
+            //if (addressMatch.Success)
+            //{
+            //    isBotAddressed = true;
+            //    text = addressMatch.Groups[1].Value.Trim();
+            //}
 
-            var message = new Message
-                {
-                    IsBotAddressed = isBotAddressed,
-                    Room = room,
-                    Text = text,
-                    Type = MessageType.Default,
-                    User = user
-                };
+            //var message = new Message
+            //    {
+            //        IsBotAddressed = isBotAddressed,
+            //        Room = room,
+            //        Text = text,
+            //        Type = MessageType.Default,
+            //        User = user
+            //    };
 
-            _messageManager.HandleMessage(message);
+            //_messageManager.HandleMessage(message);
         }
 
-        private void MeMessageReceived(string name, string text, string roomName)
+        private void ActionReceived(object sender, ActionReceivedEventArgs e) //(string name, string text, string roomName)
         {
-            var room = _rooms[roomName];
-            var user = room.Users[name];
+            //var message = new Message
+            //{
+            //    IsBotAddressed = false,
+            //    Room = e.Room,
+            //    Text = e.ActionText,
+            //    Type = MessageType.Default,
+            //    User = e.User
+            //};
 
-            var message = new Message
-            {
-                IsBotAddressed = false,
-                Room = room,
-                Text = text,
-                Type = MessageType.Default,
-                User = user
-            };
-
-            _messageManager.HandleMessage(message);
+            //_messageManager.HandleMessage(message);
         }
     }
 }

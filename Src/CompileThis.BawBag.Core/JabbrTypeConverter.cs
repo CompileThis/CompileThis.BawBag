@@ -4,9 +4,11 @@ namespace CompileThis.BawBag
     using System.Collections.Generic;
     using System.Linq;
 
+    using CompileThis.BawBag.Jabbr;
+
     internal static class JabbrTypeConverter
     {
-        public static Room ConvertRoom(JabbR.Client.Models.Room jabbrRoom)
+        public static Room ConvertRoom(JabbrRoom jabbrRoom)
         {
             return new Room
                 {
@@ -19,7 +21,7 @@ namespace CompileThis.BawBag
                 };
         }
 
-        public static User ConvertUser(JabbR.Client.Models.User jabbrUser)
+        public static User ConvertUser(JabbrUser jabbrUser)
         {
             return new User
                 {
@@ -29,24 +31,24 @@ namespace CompileThis.BawBag
                 };
         }
 
-        public static UserStatus ConvertUserStatus(JabbR.Client.Models.UserStatus jabbrStatus)
+        public static UserStatus ConvertUserStatus(JabbrUserStatus jabbrStatus)
         {
             switch (jabbrStatus)
             {
-                case JabbR.Client.Models.UserStatus.Active:
+                case JabbrUserStatus.Active:
                     return UserStatus.Active;
 
-                case JabbR.Client.Models.UserStatus.Inactive:
+                case JabbrUserStatus.Inactive:
                     return UserStatus.Inactive;
 
-                case JabbR.Client.Models.UserStatus.Offline:
+                case JabbrUserStatus.Offline:
                     return UserStatus.Offline;
             }
 
             throw new ArgumentException(string.Format("Unknown JabbR status '{0}'.", jabbrStatus));
         }
 
-        public static UserCollection ConvertUsers(IEnumerable<JabbR.Client.Models.User> jabbrUsers)
+        public static UserCollection ConvertUsers(IEnumerable<JabbrUser> jabbrUsers)
         {
             if (jabbrUsers == null)
             {
