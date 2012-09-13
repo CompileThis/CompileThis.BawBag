@@ -1,4 +1,7 @@
-﻿namespace CompileThis.BawBag
+﻿using System;
+using System.Text.RegularExpressions;
+
+namespace CompileThis.BawBag
 {
     using System.Threading.Tasks;
 
@@ -11,7 +14,7 @@
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly BawBagBotConfiguration _configuration;
-        private readonly JabbrClient _client;
+        private readonly IJabbrClient _client;
         private readonly MessageHandlerManager _messageManager;
         private readonly RoomCollection _rooms;
 
@@ -29,12 +32,24 @@
 
             _client.MessageReceived += MessageReceived;
             _client.ActionReceived += ActionReceived;
+            _client.LoggedOn += LoggedOn;
 
             Log.Trace("Connecting to server.");
 
             await _client.Connect(_configuration.Name, _configuration.Password);
 
             Log.Info("Started BawBag");
+        }
+
+        private void LoggedOn(object sender, EventArgs e)
+        {
+            foreach (var roomName in _configuration.Rooms)
+            {
+                if (!_client.Rooms.Contains(roomName))
+                {
+                    _client.JoinRoom(roomName);
+                }
+            }
         }
 
         public async Task Stop()
@@ -61,29 +76,26 @@
 
         private void MessageReceived(object sender, MessageReceivedEventArgs e)
         {
-            //var room = _rooms[roomName];
-            //var user = room.Users[jabbrMessage.User.Name];
+            var text = e.Message.Content;
+            var isBotAddressed = false;
 
-            //var text = jabbrMessage.Content;
-            //var isBotAddressed = false;
+            var addressMatch = Regex.Match(text, "^@?BawBag[,: ](.*)$", RegexOptions.IgnoreCase);
+            if (addressMatch.Success)
+            {
+                isBotAddressed = true;
+                text = addressMatch.Groups[1].Value.Trim();
+            }
 
-            //var addressMatch = Regex.Match(text, "^@?BawBag[,: ](.*)$", RegexOptions.IgnoreCase);
-            //if (addressMatch.Success)
-            //{
-            //    isBotAddressed = true;
-            //    text = addressMatch.Groups[1].Value.Trim();
-            //}
+            var message = new Message
+                {
+                    IsBotAddressed = isBotAddressed,
+                    Room = e.Room,
+                    Text = text,
+                    Type = MessageType.Default,
+                    User = e.Message.User
+                };
 
-            //var message = new Message
-            //    {
-            //        IsBotAddressed = isBotAddressed,
-            //        Room = room,
-            //        Text = text,
-            //        Type = MessageType.Default,
-            //        User = user
-            //    };
-
-            //_messageManager.HandleMessage(message);
+            _messageManager.HandleMessage(message);
         }
 
         private void ActionReceived(object sender, ActionReceivedEventArgs e) //(string name, string text, string roomName)

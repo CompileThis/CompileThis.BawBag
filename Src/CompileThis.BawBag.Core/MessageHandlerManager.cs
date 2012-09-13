@@ -48,11 +48,11 @@
                         break;
 
                     case MessageHandlerResultResponseType.Action:
-                        //await _client.Send(string.Format("/me {0}", response.ResponseText), roomName);
+                        await _client.SendAction(roomName, response.ResponseText);
                         break;
 
                     case MessageHandlerResultResponseType.Kick:
-                        //await _client.Kick(userName, roomName);
+                        await _client.Kick(userName, roomName);
                         break;
                 }
             }

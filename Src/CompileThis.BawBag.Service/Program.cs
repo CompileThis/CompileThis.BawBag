@@ -1,7 +1,5 @@
 ﻿namespace CompileThis.BawBag.Service
 {
-    using System;
-
     using Topshelf;
 
     using CompileThis.BawBag.Service.Runtime;
@@ -25,8 +23,6 @@
                         serviceConfig.ConstructUsing(hs => new BawBagService());
                     });
                 });
-
-            Console.ReadLine();
         }
     }
 }

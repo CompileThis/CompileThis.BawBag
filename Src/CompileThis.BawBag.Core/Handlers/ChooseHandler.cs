@@ -1,4 +1,6 @@
-﻿namespace CompileThis.BawBag.Handlers
+﻿using System.Collections.Generic;
+
+namespace CompileThis.BawBag.Handlers
 {
     using System;
     using System.Linq;
@@ -6,7 +8,7 @@
 
     internal class ChooseHandler : IMessageHandler
     {
-        private static readonly Regex Matcher = new Regex("^choose (.*?) (?:or (.*?))[.?]?$");
+        private static readonly Regex Matcher = new Regex("^choose (.*?) (?:or (.*?))+[.?]?$");
         private static readonly Random RandomProvider = new Random();
 
         public int Priority
@@ -32,10 +34,13 @@
                 return MessageHandlerResult.NotHandled;
             }
 
-            var options = (from o in match.Groups.OfType<Group>()
-                           let value = o.Value.Trim()
-                           where o.Index > 0 && value.Length > 0 && !value.Equals("or", StringComparison.InvariantCultureIgnoreCase)
-                           select value).ToList();
+            var values = new List<string>();
+            values.Add(match.Groups[1].Value.Trim());
+            values.AddRange(match.Groups[2].Captures.OfType<Capture>().Select(x => x.Value.Trim()));
+
+            var options = (from v in values
+                           where v.Length > 0 && !v.Equals("or", StringComparison.InvariantCultureIgnoreCase)
+                           select v).ToList();
 
             if (options.Count == 0)
             {
@@ -49,7 +54,7 @@
                 };
             }
             
-            var index = RandomProvider.Next(1, options.Count);
+            var index = RandomProvider.Next(0, options.Count);
             var text = string.Format("@{0}, {1}", message.User.Name, options[index]);
 
             var response = new MessageResponse

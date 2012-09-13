@@ -59,8 +59,9 @@
     <Compile Include="Jabbr\JabbrClient.cs" />
     <Compile Include="Jabbr\JabbrRoom.cs" />
     <Compile Include="Jabbr\JabbrRoomSummary.cs" />
-    <Compile Include="Jabbr\LogOnEventArgs.cs" />
+    <Compile Include="Jabbr\JoinedRoomEventArgs.cs" />
     <Compile Include="Jabbr\MessageReceivedEventArgs.cs" />
+    <Compile Include="Jabbr\JabbrRoomCollection.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageHandlerManager.cs" />
     <Compile Include="MessageHandlerResult.cs" />
