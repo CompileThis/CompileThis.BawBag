@@ -55,6 +55,7 @@
     <Compile Include="Handlers\ChooseHandler.cs" />
     <Compile Include="Handlers\KickLottoHandler.cs" />
     <Compile Include="Handlers\QuestionHandler.cs" />
+    <Compile Include="Handlers\TheFuckingHandler.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="JabbrTypeConverter.cs" />
     <Compile Include="Message.cs" />
