@@ -52,6 +52,7 @@
             _chatHub.On<JabbrMessage, string>("addMessage", HandleAddMessage);
             _chatHub.On<JabbrUser, string>("leave", HandleLeaveMessage);
             _chatHub.On<JabbrUser, string, bool>("addUser", HandleAddUser);
+            _chatHub.On<string, string, string>("sendMeMessage", HandleAddAction);
         }
 
         public JabbrRoomCollection Rooms
@@ -146,6 +147,15 @@
             }
         }
 
+        protected virtual void OnActionReceived(ActionReceivedEventArgs e)
+        {
+            var handler = ActionReceived;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
         private void HandleLogOn(IEnumerable<JabbrRoomSummary> roomSummaries)
         {
             Task.Factory.StartNew(async () =>
@@ -206,6 +216,17 @@
 
                     OnAddUser(new AddUserEventArgs(room, user));
                 });
+        }
+
+        private void HandleAddAction(string username, string content, string roomName)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                var room = _rooms[roomName];
+                var user = room.Users.Single(x => x.Name == username);
+
+                OnActionReceived(new ActionReceivedEventArgs(room, user, content));
+            });
         }
     }
 }

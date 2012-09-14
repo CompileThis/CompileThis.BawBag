@@ -1,23 +1,18 @@
-﻿namespace CompileThis.BawBag.Jabbr
+namespace CompileThis.BawBag.Jabbr
 {
     using System;
 
     public class ActionReceivedEventArgs : EventArgs
     {
-        private readonly JabbrUser _user;
         private readonly JabbrRoom _room;
-        private readonly string _actionText;
-
-        public ActionReceivedEventArgs(JabbrUser user, JabbrRoom room, string actionText)
+        private readonly JabbrUser _user;
+        private readonly string _content;
+        
+        public ActionReceivedEventArgs(JabbrRoom room, JabbrUser user, string content)
         {
-            _user = user;
             _room = room;
-            _actionText = actionText;
-        }
-
-        public JabbrUser User
-        {
-            get { return _user; }
+            _user = user;
+            _content = content;
         }
 
         public JabbrRoom Room
@@ -25,9 +20,14 @@
             get { return _room; }
         }
 
-        public string ActionText
+        public JabbrUser User
         {
-            get { return _actionText; }
+            get { return _user; }
+        }
+
+        public string Content
+        {
+            get { return _content; }
         }
     }
 }
