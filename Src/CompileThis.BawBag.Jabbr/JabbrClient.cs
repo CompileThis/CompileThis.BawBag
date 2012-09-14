@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using SignalR.Client.Hubs;
@@ -12,6 +13,8 @@
         event EventHandler<JoinedRoomEventArgs> JoinedRoom;
         event EventHandler<MessageReceivedEventArgs> MessageReceived;
         event EventHandler<ActionReceivedEventArgs> ActionReceived;
+        event EventHandler<LeftRoomEventArgs> LeftRoom;
+        event EventHandler<AddUserEventArgs> AddUser;
 
         JabbrRoomCollection Rooms { get; }
 
@@ -31,6 +34,8 @@
         public event EventHandler<JoinedRoomEventArgs> JoinedRoom;
         public event EventHandler<MessageReceivedEventArgs> MessageReceived;
         public event EventHandler<ActionReceivedEventArgs> ActionReceived;
+        public event EventHandler<LeftRoomEventArgs> LeftRoom;
+        public event EventHandler<AddUserEventArgs> AddUser;
 
         private readonly HubConnection _connection;
         private readonly IHubProxy _chatHub;
@@ -45,6 +50,8 @@
             _chatHub.On<IEnumerable<JabbrRoomSummary>>("logOn", HandleLogOn);
             _chatHub.On<JabbrRoomSummary>("joinRoom", HandleJoinRoom);
             _chatHub.On<JabbrMessage, string>("addMessage", HandleAddMessage);
+            _chatHub.On<JabbrUser, string>("leave", HandleLeaveMessage);
+            _chatHub.On<JabbrUser, string, bool>("addUser", HandleAddUser);
         }
 
         public JabbrRoomCollection Rooms
@@ -121,6 +128,24 @@
             }
         }
 
+        protected virtual void OnLeftRoom(LeftRoomEventArgs e)
+        {
+            var handler = LeftRoom;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        protected virtual void OnAddUser(AddUserEventArgs e)
+        {
+            var handler = AddUser;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
         private void HandleLogOn(IEnumerable<JabbrRoomSummary> roomSummaries)
         {
             Task.Factory.StartNew(async () =>
@@ -152,6 +177,34 @@
                 {
                     var room = _rooms[roomName];
                     OnMessageReceived(new MessageReceivedEventArgs(message, room));
+                });
+        }
+
+        private void HandleLeaveMessage(JabbrUser user, string roomName)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                var room = _rooms[roomName];
+                room.Users = room.Users.Where(u => u.Name != user.Name).ToList();
+                room.Owners = room.Owners.Where(o => o != user.Name).ToList();
+
+                OnLeftRoom(new LeftRoomEventArgs(room, user));
+            });
+        }
+
+        private void HandleAddUser(JabbrUser user, string roomName, bool isOwner)
+        {
+            Task.Factory.StartNew(() =>
+                {
+                    var room = _rooms[roomName];
+                    room.Users = (new [] {user}).Concat(room.Users).ToList();
+
+                    if (isOwner)
+                    {
+                        room.Owners = (new[] {user.Name}).Concat(room.Owners).ToList();
+                    }
+
+                    OnAddUser(new AddUserEventArgs(room, user));
                 });
         }
     }

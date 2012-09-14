@@ -1,33 +1,47 @@
 ﻿namespace CompileThis.BawBag
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
 
-    using CompileThis.BawBag.Handlers;
+    using NLog;
+
     using CompileThis.BawBag.Jabbr;
 
     internal class MessageHandlerManager
     {
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
         private readonly IJabbrClient _client;
-        private readonly List<IMessageHandler> _handlers;
+        private readonly IEnumerable<IMessageHandler> _handlers;
 
         public MessageHandlerManager(IJabbrClient client)
         {
             _client = client;
 
-            _handlers = new List<IMessageHandler> {new ChooseHandler()};
+            _handlers = GetHandlers();
         }
 
         public void HandleMessage(Message message)
         {
             foreach (var handler in _handlers)
             {
-                var result = handler.Execute(message);
-                ExecuteResult(result, message.Room.Name, message.User.Name);
-
-                var continueProcessing = (!result.IsHandled || handler.ContinueProcessing);
-                if (!continueProcessing)
+                try
                 {
-                    break;
+                    var result = handler.Execute(message);
+
+                    ExecuteResult(result, message.Room.Name, message.User.Name);
+
+                    var continueProcessing = (!result.IsHandled || handler.ContinueProcessing);
+                    if (!continueProcessing)
+                    {
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.WarnException(string.Format("Failed to execute handler '{0}' for message '{1}' - {2}.", handler.Name, message.Text, ex.Message), ex);
                 }
             }
         }
@@ -52,10 +66,22 @@
                         break;
 
                     case MessageHandlerResultResponseType.Kick:
-                        await _client.Kick(userName, roomName);
+                        await _client.Kick(response.ResponseText, roomName);
                         break;
                 }
             }
+        }
+
+        private IEnumerable<IMessageHandler> GetHandlers()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+
+            var handlerTypes = assembly.GetTypes().Where(x => x.IsClass && typeof(IMessageHandler).IsAssignableFrom(x));
+
+            var handlerInstances = handlerTypes.Select(x => (IMessageHandler)Activator.CreateInstance(x));
+            var orderedInstances = handlerInstances.OrderBy(x => x.Priority).ThenBy(x => x.Name).ToList();
+
+            return orderedInstances;
         }
     }
 }

@@ -53,6 +53,8 @@
     <Compile Include="BawBagBot.cs" />
     <Compile Include="BawBagBotConfiguration.cs" />
     <Compile Include="Handlers\ChooseHandler.cs" />
+    <Compile Include="Handlers\KickLottoHandler.cs" />
+    <Compile Include="Handlers\QuestionHandler.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="JabbrTypeConverter.cs" />
     <Compile Include="Message.cs" />
@@ -71,9 +73,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Jabbr\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\CompileThis.BawBag.Jabbr\CompileThis.BawBag.Jabbr.csproj">
       <Project>{51c61bb4-94ed-48b5-ae36-9da30a3a9f5e}</Project>

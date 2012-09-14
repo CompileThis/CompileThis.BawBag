@@ -8,12 +8,17 @@ namespace CompileThis.BawBag.Handlers
 
     internal class ChooseHandler : IMessageHandler
     {
-        private static readonly Regex Matcher = new Regex("^choose (.*?) (?:or (.*?))+[.?]?$");
+        private static readonly Regex Matcher = new Regex("^(?:choose )?(.*?) (?:or (.*?))+[.?]?$");
         private static readonly Random RandomProvider = new Random();
+
+        public string Name
+        {
+            get { return "Choose"; }
+        }
 
         public int Priority
         {
-            get { throw new NotImplementedException(); }
+            get { return 101; }
         }
 
         public bool ContinueProcessing

@@ -54,10 +54,14 @@
   <ItemGroup>
     <Compile Include="ActionReceivedEventArgs.cs" />
     <Compile Include="JabbrClient.cs" />
+    <Compile Include="JabbrMessage.cs" />
     <Compile Include="JabbrRoom.cs" />
     <Compile Include="JabbrRoomCollection.cs" />
     <Compile Include="JabbrRoomSummary.cs" />
+    <Compile Include="JabbrUser.cs" />
+    <Compile Include="JabbrUserStatus.cs" />
     <Compile Include="JoinedRoomEventArgs.cs" />
+    <Compile Include="LeftRoomEventArgs.cs" />
     <Compile Include="MessageReceivedEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
