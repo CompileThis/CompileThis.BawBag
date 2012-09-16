@@ -5,7 +5,7 @@
         string Name { get; }
         int Priority { get; }
         bool ContinueProcessing { get; }
-        MessageHandlerResult Execute(MessageContext message);
+        MessageHandlerResult Execute(MessageContext message, MessageHandlerContext context);
         void Initialize();
     }
 }

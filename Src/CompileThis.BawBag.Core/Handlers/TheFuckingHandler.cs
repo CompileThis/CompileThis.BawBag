@@ -24,7 +24,7 @@
             get { return false; }
         }
 
-        public MessageHandlerResult Execute(MessageContext message)
+        public MessageHandlerResult Execute(MessageContext message, MessageHandlerContext context)
         {
             if (message.IsBotAddressed || message.Type != MessageType.Default)
             {

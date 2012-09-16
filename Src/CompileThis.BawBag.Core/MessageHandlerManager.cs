@@ -29,7 +29,7 @@
             {
                 try
                 {
-                    var result = handler.Execute(message);
+                    var result = handler.Execute(message, new MessageHandlerContext());
 
                     ExecuteResult(result, message.Room, message.User);
 
