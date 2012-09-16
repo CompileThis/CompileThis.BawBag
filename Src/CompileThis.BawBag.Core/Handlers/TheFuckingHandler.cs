@@ -2,6 +2,7 @@
 {
     using System;
     using System.Text.RegularExpressions;
+    using CompileThis.BawBag.Jabbr;
 
     internal class TheFuckingHandler : IMessageHandler
     {
@@ -23,19 +24,19 @@
             get { return false; }
         }
 
-        public MessageHandlerResult Execute(Message message)
+        public MessageHandlerResult Execute(MessageContext message)
         {
             if (message.IsBotAddressed || message.Type != MessageType.Default)
             {
                 return MessageHandlerResult.NotHandled;
             }
 
-            if (!Matcher.IsMatch(message.Text) || RandomProvider.Next(2) == 0)
+            if (!Matcher.IsMatch(message.Content) || RandomProvider.Next(2) == 0)
             {
                 return MessageHandlerResult.NotHandled;
             }
 
-            var text = Matcher.Replace(message.Text, "$2 $1");
+            var text = Matcher.Replace(message.Content, "$2 $1");
 
             var response = new MessageResponse
                 {

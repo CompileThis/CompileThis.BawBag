@@ -2,12 +2,12 @@ namespace CompileThis.BawBag.Jabbr
 {
     using System;
 
-    public class LeftRoomEventArgs : EventArgs
+    public class AddUserEventArgs : EventArgs
     {
         private readonly IRoom _room;
         private readonly IUser _user;
 
-        public LeftRoomEventArgs(IRoom room, IUser user)
+        public AddUserEventArgs(IRoom room, IUser user)
         {
             _room = room;
             _user = user;

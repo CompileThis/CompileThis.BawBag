@@ -20,7 +20,7 @@ namespace CompileThis.BawBag
         public BawBagBot(BawBagBotConfiguration configuration)
         {
             _configuration = configuration;
-            _client = new JabbrClient(configuration.Url);
+            _client = new JabbrClient(configuration.Url, new DefaultDateTimeProvider());
             _messageManager = new MessageHandlerManager(_client);
         }
 
@@ -29,7 +29,6 @@ namespace CompileThis.BawBag
             Log.Info("Starting BawBag");
 
             _client.MessageReceived += MessageReceived;
-            _client.ActionReceived += ActionReceived;
             _client.LoggedOn += LoggedOn;
 
             Log.Trace("Connecting to server.");
@@ -53,13 +52,12 @@ namespace CompileThis.BawBag
         public async Task Stop()
         {
             _client.MessageReceived -= MessageReceived;
-            _client.ActionReceived -= ActionReceived;
             _client.LoggedOn -= LoggedOn;
 
             await _client.Disconnect();
         }
 
-        private void MessageReceived(object sender, MessageReceivedEventArgs e)
+        private void MessageReceived(object sender, MessageEventArgs e)
         {
             var text = e.Message.Content;
             var isBotAddressed = false;
@@ -71,28 +69,14 @@ namespace CompileThis.BawBag
                 text = addressMatch.Groups[1].Value.Trim();
             }
 
-            var message = new Message
+            var message = new MessageContext
                 {
                     IsBotAddressed = isBotAddressed,
-                    Room = e.Room,
-                    Text = text,
-                    Type = MessageType.Default,
+                    Content = text,
+                    Room = e.Message.Room,
+                    Type = e.Message.Type,
                     User = e.Message.User
                 };
-
-            _messageManager.HandleMessage(message);
-        }
-
-        private void ActionReceived(object sender, ActionReceivedEventArgs e) //(string name, string text, string roomName)
-        {
-            var message = new Message
-            {
-                IsBotAddressed = false,
-                Room = e.Room,
-                Text = e.Content,
-                Type = MessageType.Action,
-                User = e.User
-            };
 
             _messageManager.HandleMessage(message);
         }

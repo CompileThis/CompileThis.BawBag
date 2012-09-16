@@ -26,14 +26,14 @@
             get { return false; }
         }
 
-        public MessageHandlerResult Execute(Message message)
+        public MessageHandlerResult Execute(MessageContext message)
         {
             if (!message.IsBotAddressed)
             {
                 return MessageHandlerResult.NotHandled;
             }
 
-            var match = Matcher.Match(message.Text);
+            var match = Matcher.Match(message.Content);
             if (!match.Success)
             {
                 return MessageHandlerResult.NotHandled;

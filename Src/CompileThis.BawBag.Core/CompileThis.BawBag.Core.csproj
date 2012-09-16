@@ -57,19 +57,12 @@
     <Compile Include="Handlers\QuestionHandler.cs" />
     <Compile Include="Handlers\TheFuckingHandler.cs" />
     <Compile Include="IMessageHandler.cs" />
-    <Compile Include="JabbrTypeConverter.cs" />
-    <Compile Include="Message.cs" />
+    <Compile Include="MessageContext.cs" />
     <Compile Include="MessageHandlerManager.cs" />
     <Compile Include="MessageHandlerResult.cs" />
     <Compile Include="MessageHandlerResultResponseType.cs" />
     <Compile Include="MessageResponse.cs" />
-    <Compile Include="MessageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Room.cs" />
-    <Compile Include="RoomCollection.cs" />
-    <Compile Include="User.cs" />
-    <Compile Include="UserCollection.cs" />
-    <Compile Include="UserStatus.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -29,9 +29,9 @@
             get { return false; }
         }
 
-        public MessageHandlerResult Execute(Message message)
+        public MessageHandlerResult Execute(MessageContext message)
         {
-            if (!message.IsBotAddressed || !message.Text.Equals("kicklotto", StringComparison.OrdinalIgnoreCase))
+            if (!message.IsBotAddressed || !message.Content.Equals("kicklotto", StringComparison.OrdinalIgnoreCase))
             {
                 return MessageHandlerResult.NotHandled;
             }

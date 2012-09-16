@@ -4,14 +4,14 @@
 
     public class JoinedRoomEventArgs : EventArgs
     {
-        private readonly JabbrRoom _room;
+        private readonly IRoom _room;
 
-        public JoinedRoomEventArgs(JabbrRoom room)
+        public JoinedRoomEventArgs(IRoom room)
         {
             _room = room;
         }
 
-        public JabbrRoom Room
+        public IRoom Room
         {
             get { return _room; }
         }

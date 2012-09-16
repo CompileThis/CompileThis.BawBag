@@ -23,7 +23,7 @@
             _handlers = GetHandlers();
         }
 
-        public void HandleMessage(Message message)
+        public void HandleMessage(MessageContext message)
         {
             foreach (var handler in _handlers)
             {
@@ -31,7 +31,7 @@
                 {
                     var result = handler.Execute(message);
 
-                    ExecuteResult(result, message.Room.Name, message.User.Name);
+                    ExecuteResult(result, message.Room, message.User);
 
                     var continueProcessing = (!result.IsHandled || handler.ContinueProcessing);
                     if (!continueProcessing)
@@ -41,12 +41,12 @@
                 }
                 catch (Exception ex)
                 {
-                    Log.WarnException(string.Format("Failed to execute handler '{0}' for message '{1}' - {2}.", handler.Name, message.Text, ex.Message), ex);
+                    Log.WarnException(string.Format("Failed to execute handler '{0}' for message '{1}' - {2}.", handler.Name, message.Content, ex.Message), ex);
                 }
             }
         }
 
-        private async void ExecuteResult(MessageHandlerResult result, string roomName, string userName)
+        private async void ExecuteResult(MessageHandlerResult result, IRoom room, IUser user)
         {
             if (!result.IsHandled)
             {
@@ -58,15 +58,15 @@
                 switch (response.ResponseType)
                 {
                     case MessageHandlerResultResponseType.Message:
-                        await _client.SendMessage(roomName, response.ResponseText);
+                        await _client.SendMessage(room.Name, response.ResponseText);
                         break;
 
                     case MessageHandlerResultResponseType.Action:
-                        await _client.SendAction(roomName, response.ResponseText);
+                        await _client.SendAction(room.Name, response.ResponseText);
                         break;
 
                     case MessageHandlerResultResponseType.Kick:
-                        await _client.Kick(response.ResponseText, roomName);
+                        await _client.Kick(response.ResponseText, room.Name);
                         break;
                 }
             }
