@@ -200,8 +200,12 @@
                 var room = _rooms[roomName];
                 var user = ServerModelConverter.ToUser(jabbrUser, _users);
 
-                room.Owners.Remove(user.Name);
                 room.Users.Remove(user.Name);
+
+                if (room.Owners.Contains(user.Name))
+                {
+                    room.Owners.Remove(user.Name);
+                }
 
                 OnLeftRoom(new LeftRoomEventArgs(room, user));
             });

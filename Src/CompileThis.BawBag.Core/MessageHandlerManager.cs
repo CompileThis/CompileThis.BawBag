@@ -8,41 +8,51 @@
     using NLog;
 
     using CompileThis.BawBag.Jabbr;
+using Raven.Client;
 
     internal class MessageHandlerManager
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly IJabbrClient _client;
+        private readonly IDocumentStore _store;
+
         private readonly IEnumerable<IMessageHandler> _handlers;
 
-        public MessageHandlerManager(IJabbrClient client)
+        public MessageHandlerManager(IJabbrClient client, IDocumentStore store)
         {
             _client = client;
+            _store = store;
 
             _handlers = GetHandlers();
         }
 
         public void HandleMessage(MessageContext message)
         {
-            foreach (var handler in _handlers)
+            using (var session = _store.OpenSession())
             {
-                try
+                foreach (var handler in _handlers)
                 {
-                    var result = handler.Execute(message, new MessageHandlerContext());
-
-                    ExecuteResult(result, message.Room, message.User);
-
-                    var continueProcessing = (!result.IsHandled || handler.ContinueProcessing);
-                    if (!continueProcessing)
+                    try
                     {
-                        break;
+
+                        var result = handler.Execute(message, new MessageHandlerContext(session));
+
+                        ExecuteResult(result, message.Room, message.User);
+
+                        var continueProcessing = (!result.IsHandled || handler.ContinueProcessing);
+                        if (!continueProcessing)
+                        {
+                            break;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.WarnException(string.Format("Failed to execute handler '{0}' for message '{1}' - {2}.", handler.Name, message.Content, ex.Message), ex);
                     }
                 }
-                catch (Exception ex)
-                {
-                    Log.WarnException(string.Format("Failed to execute handler '{0}' for message '{1}' - {2}.", handler.Name, message.Content, ex.Message), ex);
-                }
+
+                session.SaveChanges();
             }
         }
 

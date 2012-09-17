@@ -1,18 +1,19 @@
-﻿using Raven.Client;
-namespace CompileThis.BawBag
+﻿namespace CompileThis.BawBag
 {
-    using System;
+    using Raven.Client;
 
     public class MessageHandlerContext
     {
-        internal MessageHandlerContext()
+        private readonly IDocumentSession _session;
+
+        internal MessageHandlerContext(IDocumentSession session)
         {
-            
+            _session = session;
         }
 
         public IDocumentSession RavenSession
         {
-            get { throw new NotImplementedException(); }
+            get { return _session; }
         }
     }
 }

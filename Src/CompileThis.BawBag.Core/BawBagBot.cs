@@ -8,14 +8,21 @@ namespace CompileThis.BawBag
     using NLog;
 
     using CompileThis.BawBag.Jabbr;
+using Raven.Client;
+    using Raven.Client.Document;
 
     public class BawBagBot
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly BawBagBotConfiguration _configuration;
+        
         private readonly IJabbrClient _client;
-        private readonly MessageHandlerManager _messageManager;
+        private readonly IDocumentStore _store;
+
+        private readonly Regex _botAddressedMatcher;
+
+        private MessageHandlerManager _messageManager;
 
         public BawBagBot()
             : this(BawBagBotConfiguration.FromConfigFile())
@@ -26,7 +33,9 @@ namespace CompileThis.BawBag
             _configuration = configuration;
 
             _client = new JabbrClient(configuration.JabbrUrl, new DefaultDateTimeProvider());
-            _messageManager = new MessageHandlerManager(_client);
+            _store = new DocumentStore { Url = configuration.RavenDbUrl };
+
+            _botAddressedMatcher = new Regex("^@?" + _configuration.JabbrNick + "[,: ](.*)$", RegexOptions.IgnoreCase);
         }
 
         public async Task Start()
@@ -36,7 +45,10 @@ namespace CompileThis.BawBag
             _client.MessageReceived += MessageReceived;
             _client.LoggedOn += LoggedOn;
 
-            Log.Trace("Connecting to server.");
+            Log.Info("Connecting to '{0}' as '{1}'.", _configuration.JabbrUrl, _configuration.JabbrNick);
+
+            _store.Initialize();
+            _messageManager = new MessageHandlerManager(_client, _store);
 
             await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
 
@@ -67,7 +79,7 @@ namespace CompileThis.BawBag
             var text = e.Message.Content;
             var isBotAddressed = false;
 
-            var addressMatch = Regex.Match(text, "^@?BawBag[,: ](.*)$", RegexOptions.IgnoreCase);
+            var addressMatch = _botAddressedMatcher.Match(text);
             if (addressMatch.Success)
             {
                 isBotAddressed = true;
