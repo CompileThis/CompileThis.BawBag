@@ -1,6 +1,7 @@
 ﻿namespace CompileThis.BawBag.Handlers
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
 
@@ -8,6 +9,7 @@
     {
         private static readonly Regex WhitespaceExpression = new Regex(@"\s+");
         private static readonly Regex SimplifyTextExpression = new Regex(@"[^\sa-zA-Z0-9']+");
+        private static readonly Regex AddFactoidExpression = new Regex(@"^\s*(?<trigger>.*)\s*<(?<type>is|reply|action)>\s*(?<response>.*?)\s*(?:<(?<options>cs)>\s*)*$", RegexOptions.IgnoreCase);
 
         public string Name
         {
@@ -26,33 +28,127 @@
 
         public MessageHandlerResult Execute(MessageContext message, MessageHandlerContext context)
         {
-            var session = context.RavenSession;
+            if (!message.IsBotAddressed)
+            {
+                return MessageHandlerResult.NotHandled;
+            }
+;
+            
+            var addMatch = AddFactoidExpression.Match(message.Content);
+            if (addMatch.Success)
+            {
+                return AddFactiod(addMatch, message, context);
+            }
 
-            var factiodTrigger = ProcessText(message.Content);
-            var factiod = session.Query<Factoid>().SingleOrDefault(x => x.Trigger == factiodTrigger);
-
-            throw new NotImplementedException();
+            return MessageHandlerResult.NotHandled;
         }
 
         public void Initialize()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         private static string ProcessText(string text)
         {
-            return SimplifyTextExpression.Replace(WhitespaceExpression.Replace(text, " "), "").Trim().ToLower();
-        }   
+            return SimplifyTextExpression.Replace(WhitespaceExpression.Replace(text, " "), "").Trim();
+        }
+
+        private static FactoidResponseType ToResponseType(string responseTypeText)
+        {
+            switch (responseTypeText.ToUpperInvariant())
+            {
+                case "IS":
+                    return FactoidResponseType.Is;
+
+                case "REPLY":
+                    return FactoidResponseType.Reply;
+
+                case "ACTION":
+                    return FactoidResponseType.Action;
+            }
+
+            throw new ArgumentException(string.Format("Unknown response type '{0}'.", responseTypeText), "responseTypeText");
+        }
+
+        private static MessageHandlerResult AddFactiod(Match match, MessageContext message, MessageHandlerContext context)
+        {
+            var trigger = match.Groups["trigger"].Value;
+            var type = match.Groups["type"].Value;
+            var responseText = match.Groups["response"].Value;
+            var options = match.Groups["options"].Captures.OfType<Capture>().Select(x => x.Value.ToUpperInvariant());
+
+            var responseTrigger = ProcessText(trigger);
+            var factoidTrigger = responseTrigger.ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(factoidTrigger))
+            {
+                return MessageHandlerResult.NotHandled;
+            }
+
+            var factoid = context.RavenSession.Query<Factoid>().SingleOrDefault(x => x.Trigger == factoidTrigger);
+            if (factoid == null)
+            {
+                factoid = new Factoid { Trigger = factoidTrigger, Responses = new List<FactiodResponse>(1) };
+                context.RavenSession.Store(factoid);
+            }
+
+            if (factoid.Responses.Any(x => ProcessText(x.Response).ToUpperInvariant() == ProcessText(responseText).ToUpperInvariant()))
+            {
+                return new MessageHandlerResult
+                    {
+                        IsHandled = true,
+                        Responses = new[] {new MessageResponse {ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: I already had it that way!", message.User.Name)}}
+                    };
+            }
+
+            var response = new FactiodResponse
+                {
+                    Trigger = responseTrigger,
+                    ResponseType = ToResponseType(type),
+                    Response = responseText,
+                    IsCaseSensitive = options.Any(x => x == "CS")
+                };
+
+            factoid.Responses.Add(response);
+
+            return new MessageHandlerResult
+            {
+                IsHandled = true,
+                Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("OK @{0} factoid stored.", message.User.Name) } }
+            };
+        }
+
+        private MessageHandlerResult RemoveFactiod()
+        {
+            throw new NotImplementedException();
+        }
+
+        private MessageHandlerResult DisplayFactiod()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     internal class Factoid
     {
         public int Id { get; set; }
         public string Trigger { get; set; }
+
+        public List<FactiodResponse> Responses { get; set; }
     }
 
     internal class FactiodResponse
     {
+        public string Trigger { get; set; }
+        public string Response { get; set; }
+        public FactoidResponseType ResponseType { get; set; }
+        public bool IsCaseSensitive { get; set; }
+    }
 
+    internal enum FactoidResponseType
+    {
+        Is = 0,
+        Reply = 1,
+        Action = 2
     }
 }

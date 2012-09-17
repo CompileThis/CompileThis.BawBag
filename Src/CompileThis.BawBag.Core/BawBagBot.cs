@@ -10,6 +10,7 @@ namespace CompileThis.BawBag
     using CompileThis.BawBag.Jabbr;
 using Raven.Client;
     using Raven.Client.Document;
+    using System.Net;
 
     public class BawBagBot
     {
@@ -55,6 +56,14 @@ using Raven.Client;
             Log.Info("Started BawBag");
         }
 
+        public async Task Stop()
+        {
+            _client.MessageReceived -= MessageReceived;
+            _client.LoggedOn -= LoggedOn;
+
+            await _client.Disconnect();
+        }
+
         private void LoggedOn(object sender, EventArgs e)
         {
             foreach (var roomName in _configuration.Rooms)
@@ -66,17 +75,9 @@ using Raven.Client;
             }
         }
 
-        public async Task Stop()
-        {
-            _client.MessageReceived -= MessageReceived;
-            _client.LoggedOn -= LoggedOn;
-
-            await _client.Disconnect();
-        }
-
         private void MessageReceived(object sender, MessageEventArgs e)
         {
-            var text = e.Message.Content;
+            var text = WebUtility.HtmlDecode(e.Message.Content);
             var isBotAddressed = false;
 
             var addressMatch = _botAddressedMatcher.Match(text);
