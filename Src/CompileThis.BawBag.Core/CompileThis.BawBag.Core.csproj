@@ -61,6 +61,7 @@
     <Compile Include="BawBagBot.cs" />
     <Compile Include="BawBagBotConfiguration.cs" />
     <Compile Include="Handlers\ChooseHandler.cs" />
+    <Compile Include="Handlers\SexactlyHandler.cs" />
     <Compile Include="Handlers\EditFactiodsHandler.cs" />
     <Compile Include="Handlers\FactoidsHandler.cs" />
     <Compile Include="Handlers\KickLottoHandler.cs" />
