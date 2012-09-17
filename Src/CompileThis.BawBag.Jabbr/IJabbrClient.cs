@@ -18,7 +18,8 @@ namespace CompileThis.BawBag.Jabbr
         Task Connect(string username, string password);
         Task Disconnect();
 
-        Task JoinRoom(string roomName);
+        Task JoinRoom(string room);
+        Task LeaveRoom(string room);
 
         Task SendMessage(string room, string message);
         Task SendAction(string room, string action);

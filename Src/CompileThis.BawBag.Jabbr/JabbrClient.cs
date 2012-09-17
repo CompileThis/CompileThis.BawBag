@@ -77,7 +77,7 @@
 
         public Task JoinRoom(string roomName)
         {
-            return _chatHub.Invoke("Send", string.Format("/join {0}", roomName), "");
+            return _chatHub.Invoke("Send", string.Format("/join #{0}", roomName), "");
         }
 
         public Task SendMessage(string room, string message)
@@ -93,6 +93,11 @@
         public Task Kick(string username, string room)
         {
             return _chatHub.Invoke("Send", string.Format("/kick {0}", username), room);
+        }
+
+        public Task LeaveRoom(string room)
+        {
+            return _chatHub.Invoke("Send", string.Format("/leave #{0}", room), "");
         }
 
         private Task SetNick(string username, string password)
@@ -171,7 +176,7 @@
         {
             Task.Factory.StartNew(async () =>
             {
-                var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", roomSummary);
+                var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", roomSummary.Name);
                 var room = ServerModelConverter.ToRoom(jabbrRoom, _users);
 
                 _rooms.Add(room);

@@ -61,6 +61,11 @@ using Raven.Client;
             _client.MessageReceived -= MessageReceived;
             _client.LoggedOn -= LoggedOn;
 
+            foreach (var room in _client.Rooms)
+            {
+                await _client.LeaveRoom(room.Name);
+            }
+
             await _client.Disconnect();
         }
 
