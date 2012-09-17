@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using System.Text.RegularExpressions;
 
     internal class EditFactiodsHandler : IMessageHandler
@@ -10,6 +11,7 @@
         private static readonly Regex WhitespaceExpression = new Regex(@"\s+");
         private static readonly Regex SimplifyTextExpression = new Regex(@"[^\sa-zA-Z0-9']+");
         private static readonly Regex AddFactoidExpression = new Regex(@"^\s*(?<trigger>.*)\s*<(?<type>is|reply|action)>\s*(?<response>.*?)\s*(?:<(?<options>cs)>\s*)*$", RegexOptions.IgnoreCase);
+        private static readonly Regex DisplayFactoidExpression = new Regex(@"^\s*factoid\s+(?<trigger>.*?)\s*$", RegexOptions.IgnoreCase);
 
         public string Name
         {
@@ -32,12 +34,17 @@
             {
                 return MessageHandlerResult.NotHandled;
             }
-;
             
             var addMatch = AddFactoidExpression.Match(message.Content);
             if (addMatch.Success)
             {
                 return AddFactiod(addMatch, message, context);
+            }
+
+            var displaytMatch = DisplayFactoidExpression.Match(message.Content);
+            if (displaytMatch.Success)
+            {
+                return DisplayFactiod(displaytMatch, message, context);
             }
 
             return MessageHandlerResult.NotHandled;
@@ -118,14 +125,42 @@
             };
         }
 
-        private MessageHandlerResult RemoveFactiod()
+        private static MessageHandlerResult DisplayFactiod(Match match, MessageContext message, MessageHandlerContext context)
         {
-            throw new NotImplementedException();
-        }
+            var trigger = match.Groups["trigger"].Value;
 
-        private MessageHandlerResult DisplayFactiod()
-        {
-            throw new NotImplementedException();
+            var factoidTrigger = ProcessText(trigger).ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(factoidTrigger))
+            {
+                return MessageHandlerResult.NotHandled;
+            }
+
+            var factoid = context.RavenSession.Query<Factoid>().SingleOrDefault(x => x.Trigger == factoidTrigger);
+            if (factoid == null)
+            {
+                return new MessageHandlerResult
+                    {
+                        IsHandled = true,
+                        Responses = new[] {new MessageResponse {ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: no factoid is defined for '{1}'.", message.User.Name, trigger)}}
+                    };
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("@{0}: there are {1} responses defined for '{2}':", message.User.Name, factoid.Responses.Count, trigger);
+            sb.AppendLine();
+            var index = 1;
+            foreach (var response in factoid.Responses)
+            {
+                sb.AppendFormat("{0}. {1}", index++, response.Response);
+                sb.AppendLine();
+            }
+
+            return new MessageHandlerResult
+                {
+                    IsHandled = true,
+                    Responses = new[] {new MessageResponse {ResponseType = MessageHandlerResultResponseType.Message, ResponseText = sb.ToString()}}
+                };
         }
     }
 
