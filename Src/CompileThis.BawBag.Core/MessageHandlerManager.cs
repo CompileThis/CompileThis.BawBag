@@ -7,8 +7,9 @@
 
     using NLog;
 
+    using Raven.Client;
+
     using CompileThis.BawBag.Jabbr;
-using Raven.Client;
 
     internal class MessageHandlerManager
     {
@@ -16,19 +17,26 @@ using Raven.Client;
 
         private readonly IJabbrClient _client;
         private readonly IDocumentStore _store;
+        private readonly string _botName;
 
         private readonly IEnumerable<IMessageHandler> _handlers;
 
-        public MessageHandlerManager(IJabbrClient client, IDocumentStore store)
+        public MessageHandlerManager(IJabbrClient client, IDocumentStore store, string botName)
         {
             _client = client;
             _store = store;
+            _botName = botName;
 
             _handlers = GetHandlers();
         }
 
         public void HandleMessage(MessageContext message)
         {
+            if (message.User.Name == _botName)
+            {
+                return;
+            }
+
             using (var session = _store.OpenSession())
             {
                 foreach (var handler in _handlers)

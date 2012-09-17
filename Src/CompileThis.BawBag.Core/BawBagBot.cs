@@ -49,7 +49,7 @@ using Raven.Client;
             Log.Info("Connecting to '{0}' as '{1}'.", _configuration.JabbrUrl, _configuration.JabbrNick);
 
             _store.Initialize();
-            _messageManager = new MessageHandlerManager(_client, _store);
+            _messageManager = new MessageHandlerManager(_client, _store, _configuration.JabbrNick);
 
             await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
 

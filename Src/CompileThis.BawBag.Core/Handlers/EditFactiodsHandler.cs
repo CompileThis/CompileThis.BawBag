@@ -11,7 +11,8 @@
         private static readonly Regex WhitespaceExpression = new Regex(@"\s+");
         private static readonly Regex SimplifyTextExpression = new Regex(@"[^\sa-zA-Z0-9']+");
         private static readonly Regex AddFactoidExpression = new Regex(@"^\s*(?<trigger>.*)\s*<(?<type>is|reply|action)>\s*(?<response>.*?)\s*(?:<(?<options>cs)>\s*)*$", RegexOptions.IgnoreCase);
-        private static readonly Regex DisplayFactoidExpression = new Regex(@"^\s*factoid\s+(?<trigger>.*?)\s*$", RegexOptions.IgnoreCase);
+        private static readonly Regex DisplayFactoidExpression = new Regex(@"^\s*show-factoid\s+(?<trigger>.*?)\s*$", RegexOptions.IgnoreCase);
+        private static readonly Regex RemoveFactoidExpression = new Regex(@"^\s*remove-factoid\s+(?<trigger>.*?)\s+(?<index>\d+|\*)$", RegexOptions.IgnoreCase);
 
         public string Name
         {
@@ -45,6 +46,12 @@
             if (displaytMatch.Success)
             {
                 return DisplayFactiod(displaytMatch, message, context);
+            }
+
+            var removeMatch = RemoveFactoidExpression.Match(message.Content);
+            if (removeMatch.Success)
+            {
+                return RemoveFactoid(removeMatch, message, context);
             }
 
             return MessageHandlerResult.NotHandled;
@@ -161,6 +168,60 @@
                     IsHandled = true,
                     Responses = new[] {new MessageResponse {ResponseType = MessageHandlerResultResponseType.Message, ResponseText = sb.ToString()}}
                 };
+        }
+
+        private static MessageHandlerResult RemoveFactoid(Match match, MessageContext message, MessageHandlerContext context)
+        {
+            var trigger = match.Groups["trigger"].Value;
+
+            var factoidTrigger = ProcessText(trigger).ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(factoidTrigger))
+            {
+                return MessageHandlerResult.NotHandled;
+            }
+
+            var factoid = context.RavenSession.Query<Factoid>().SingleOrDefault(x => x.Trigger == factoidTrigger);
+            if (factoid == null)
+            {
+                return new MessageHandlerResult
+                {
+                    IsHandled = true,
+                    Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: no factoid is defined for '{1}'.", message.User.Name, trigger) } }
+                };
+            }
+
+            var indexValue = match.Groups["index"].Value;
+            if (indexValue == "*")
+            {
+                context.RavenSession.Delete(factoid);
+
+                return new MessageHandlerResult
+                {
+                    IsHandled = true,
+                    Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: removed factoid '{1}'.", message.User.Name, trigger) } }
+                };
+            }
+
+            var index = -1;
+            int.TryParse(indexValue, out index);
+
+            if (index < 1 || index > factoid.Responses.Count)
+            {
+                return new MessageHandlerResult
+                {
+                    IsHandled = true,
+                    Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: invalid response number '{1}'.", message.User.Name, indexValue) } }
+                };
+            }
+
+            factoid.Responses.RemoveAt(index - 1);
+
+            return new MessageHandlerResult
+            {
+                IsHandled = true,
+                Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: removed reponse {2} for factoid '{1}'.", message.User.Name, trigger, index) } }
+            };
         }
     }
 
