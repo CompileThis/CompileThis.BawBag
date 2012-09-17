@@ -1,11 +1,31 @@
-﻿namespace CompileThis.BawBag
+﻿using System.Configuration;
+namespace CompileThis.BawBag
 {
+    using System;
+
     public class BawBagBotConfiguration
     {
-        public string Url { get; set; }
-        public string Name { get; set; }
-        public string Password { get; set; }
+        public string JabbrUrl { get; set; }
+        public string JabbrNick { get; set; }
+        public string JabbrPassword { get; set; }
+
         public string[] Rooms { get; set; }
         public string[] Admins { get; set; }
+
+        public string RavenDbUrl { get; set; }
+
+        public static BawBagBotConfiguration FromConfigFile()
+        {
+
+            return new BawBagBotConfiguration
+                {
+                    JabbrUrl = ConfigurationManager.AppSettings["BawBag/JabbrUrl"],
+                    JabbrNick = ConfigurationManager.AppSettings["BawBag/JabbrNick"],
+                    JabbrPassword = ConfigurationManager.AppSettings["BawBag/JabbrPassword"],
+                    Rooms = ConfigurationManager.AppSettings["BawBag/Rooms"].Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries),
+                    Admins = ConfigurationManager.AppSettings["BawBag/Admins"].Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries),
+                    RavenDbUrl = ConfigurationManager.AppSettings["BawBag/RavenDbUrl"]
+                };
+        }
     }
 }

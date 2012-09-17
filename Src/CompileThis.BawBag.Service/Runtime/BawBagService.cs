@@ -2,20 +2,15 @@
 {
     public class BawBagService
     {
-        private BawBagBot _bot;
+        private readonly BawBagBot _bot;
+
+        public BawBagService()
+        {
+            _bot = new BawBagBot();
+        }
 
         public void Start()
         {
-            var config = new BawBagBotConfiguration
-                {
-                    Name = "BawBag",
-                    Password = "B4wB4g",
-                    Url = "http://debauchery.apphb.com",
-                    Rooms = new[] { "BawBag", "Debauchery" }
-                };
-
-            _bot = new BawBagBot(config);
-
             _bot.Start().Wait();
         }
 

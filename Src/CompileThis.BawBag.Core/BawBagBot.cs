@@ -17,10 +17,15 @@ namespace CompileThis.BawBag
         private readonly IJabbrClient _client;
         private readonly MessageHandlerManager _messageManager;
 
+        public BawBagBot()
+            : this(BawBagBotConfiguration.FromConfigFile())
+        { }
+
         public BawBagBot(BawBagBotConfiguration configuration)
         {
             _configuration = configuration;
-            _client = new JabbrClient(configuration.Url, new DefaultDateTimeProvider());
+
+            _client = new JabbrClient(configuration.JabbrUrl, new DefaultDateTimeProvider());
             _messageManager = new MessageHandlerManager(_client);
         }
 
@@ -33,7 +38,7 @@ namespace CompileThis.BawBag
 
             Log.Trace("Connecting to server.");
 
-            await _client.Connect(_configuration.Name, _configuration.Password);
+            await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
 
             Log.Info("Started BawBag");
         }
