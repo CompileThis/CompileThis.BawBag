@@ -11,6 +11,7 @@ namespace CompileThis.BawBag
 using Raven.Client;
     using Raven.Client.Document;
     using System.Net;
+    using HtmlAgilityPack;
 
     public class BawBagBot
     {
@@ -82,7 +83,8 @@ using Raven.Client;
 
         private void MessageReceived(object sender, MessageEventArgs e)
         {
-            var text = WebUtility.HtmlDecode(e.Message.Content);
+            
+            var text = WebUtility.HtmlDecode(CleanMessage(e.Message.Content));
             var isBotAddressed = false;
 
             var addressMatch = _botAddressedMatcher.Match(text);
@@ -102,6 +104,14 @@ using Raven.Client;
                 };
 
             _messageManager.HandleMessage(message);
+        }
+
+        private string CleanMessage(string message)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(message);
+
+            return doc.DocumentNode.InnerText;
         }
     }
 }
