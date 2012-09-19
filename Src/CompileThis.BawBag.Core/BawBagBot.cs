@@ -1,17 +1,18 @@
-﻿using System;
-using System.Text.RegularExpressions;
-
-namespace CompileThis.BawBag
+﻿namespace CompileThis.BawBag
 {
+    using System;
+    using System.Net;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
+
+    using HtmlAgilityPack;
 
     using NLog;
 
-    using CompileThis.BawBag.Jabbr;
-using Raven.Client;
+    using Raven.Client;
     using Raven.Client.Document;
-    using System.Net;
-    using HtmlAgilityPack;
+
+    using CompileThis.BawBag.Jabbr;
 
     public class BawBagBot
     {
