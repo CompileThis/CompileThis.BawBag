@@ -11,7 +11,6 @@
 
     public class JabbrClient : IJabbrClient
     {
-        public event EventHandler<EventArgs> LoggedOn;
         public event EventHandler<JoinedRoomEventArgs> JoinedRoom;
         public event EventHandler<MessageEventArgs> MessageReceived;
         public event EventHandler<LeftRoomEventArgs> LeftRoom;
@@ -35,7 +34,6 @@
             _rooms = new LookupList<string, Room>(x => x.Name);
             _users = new LookupList<string, User>(x => x.Name);
 
-            _chatHub.On<IEnumerable<JabbrRoomSummary>>("logOn", HandleLogOn);
             _chatHub.On<JabbrRoomSummary>("joinRoom", HandleJoinRoom);
             _chatHub.On<JabbrMessage, string>("addMessage", HandleAddMessage);
             _chatHub.On<JabbrUser, string>("leave", HandleLeaveMessage);
@@ -66,7 +64,37 @@
         public async Task Connect(string username, string password)
         {
             await _connection.Start();
-            await SetNick(username, password);
+
+            var tcs = new TaskCompletionSource<object>();
+
+            var logOnHandle = _chatHub.On<IEnumerable<JabbrRoomSummary>>("logOn", async summaries =>
+                {
+                    foreach (var summary in summaries)
+                    {
+                        var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name);
+                        jabbrRoom.Private = summary.Private;
+
+                        var room = ServerModelConverter.ToRoom(jabbrRoom, _users);
+                        _rooms.Add(room);
+                    }
+
+                    tcs.SetResult(null);
+                });
+
+            try
+            {
+                var joinSuccess = await _chatHub.Invoke<bool>("Join");
+                if (!joinSuccess)
+                {
+                    await SetNick(username, password);
+                }
+
+                await tcs.Task;
+            }
+            finally
+            {
+                logOnHandle.Dispose();
+            }
         }
 
         public async Task Disconnect()
@@ -110,15 +138,6 @@
             return _chatHub.Invoke("Send", "/logout", "");
         }
 
-        protected virtual void OnLoggedOn(EventArgs e)
-        {
-            var handler = LoggedOn;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
         protected virtual void OnJoinedRoom(JoinedRoomEventArgs e)
         {
             var handler = JoinedRoom;
@@ -153,23 +172,6 @@
             {
                 handler(this, e);
             }
-        }
-
-        private void HandleLogOn(IEnumerable<JabbrRoomSummary> roomSummaries)
-        {
-            Task.Factory.StartNew(async () =>
-                {
-                    foreach (var summary in roomSummaries)
-                    {
-                        var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name);
-                        jabbrRoom.Private = summary.Private;
-
-                        var room = ServerModelConverter.ToRoom(jabbrRoom, _users);
-                        _rooms.Add(room);
-                    }
-
-                    OnLoggedOn(EventArgs.Empty);
-                });
         }
 
         private void HandleJoinRoom(JabbrRoomSummary roomSummary)

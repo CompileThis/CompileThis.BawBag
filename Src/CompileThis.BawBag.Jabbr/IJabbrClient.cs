@@ -6,7 +6,6 @@ namespace CompileThis.BawBag.Jabbr
 
     public interface IJabbrClient
     {
-        event EventHandler<EventArgs> LoggedOn;
         event EventHandler<JoinedRoomEventArgs> JoinedRoom;
         event EventHandler<MessageEventArgs> MessageReceived;
         event EventHandler<LeftRoomEventArgs> LeftRoom;

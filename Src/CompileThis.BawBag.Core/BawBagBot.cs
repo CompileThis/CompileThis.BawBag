@@ -46,7 +46,6 @@
             Log.Info("Starting BawBag");
 
             _client.MessageReceived += MessageReceived;
-            _client.LoggedOn += LoggedOn;
 
             Log.Info("Connecting to '{0}' as '{1}'.", _configuration.JabbrUrl, _configuration.JabbrNick);
 
@@ -56,23 +55,7 @@
             await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
 
             Log.Info("Started BawBag");
-        }
 
-        public async Task Stop()
-        {
-            _client.MessageReceived -= MessageReceived;
-            _client.LoggedOn -= LoggedOn;
-
-            foreach (var room in _client.Rooms)
-            {
-                await _client.LeaveRoom(room.Name);
-            }
-
-            await _client.Disconnect();
-        }
-
-        private async void LoggedOn(object sender, EventArgs e)
-        {
             foreach (var roomName in _configuration.Rooms)
             {
                 if (!_client.Rooms.Contains(roomName))
@@ -80,6 +63,18 @@
                     await _client.JoinRoom(roomName);
                 }
             }
+        }
+
+        public async Task Stop()
+        {
+            _client.MessageReceived -= MessageReceived;
+
+            foreach (var room in _client.Rooms)
+            {
+                await _client.LeaveRoom(room.Name);
+            }
+
+            await _client.Disconnect();
         }
 
         private void MessageReceived(object sender, MessageEventArgs e)
