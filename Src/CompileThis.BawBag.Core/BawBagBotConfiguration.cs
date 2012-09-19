@@ -12,7 +12,8 @@ namespace CompileThis.BawBag
         public string[] Rooms { get; set; }
         public string[] Admins { get; set; }
 
-        public string RavenDbUrl { get; set; }
+        public string RavenUrl { get; set; }
+        public string RavenDatabase { get; set; }
 
         public static BawBagBotConfiguration FromConfigFile()
         {
@@ -24,7 +25,8 @@ namespace CompileThis.BawBag
                     JabbrPassword = ConfigurationManager.AppSettings["BawBag/JabbrPassword"],
                     Rooms = ConfigurationManager.AppSettings["BawBag/Rooms"].Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries),
                     Admins = ConfigurationManager.AppSettings["BawBag/Admins"].Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries),
-                    RavenDbUrl = ConfigurationManager.AppSettings["BawBag/RavenDbUrl"]
+                    RavenUrl = ConfigurationManager.AppSettings["BawBag/RavenUrl"],
+                    RavenDatabase = ConfigurationManager.AppSettings["BawBag/RavenDatabase"]
                 };
         }
     }

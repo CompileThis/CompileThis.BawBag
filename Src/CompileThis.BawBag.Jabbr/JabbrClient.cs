@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-
+    using HtmlAgilityPack;
     using SignalR.Client.Hubs;
 
     using CompileThis.BawBag.Jabbr.Collections;
@@ -194,7 +194,7 @@
                     var room = _rooms[roomName];
                     var user = ServerModelConverter.ToUser(jabbrMessage.User, _users);
 
-                    var message = new Message(jabbrMessage.Content, jabbrMessage.Id, room, jabbrMessage.When, MessageType.Default, user);
+                    var message = new Message(CleanMessage(jabbrMessage.Content), jabbrMessage.Id, room, jabbrMessage.When, MessageType.Default, user);
 
                     OnMessageReceived(new MessageEventArgs(message));
                 });
@@ -243,10 +243,18 @@
                 var room = _rooms[roomName];
                 var user = _users[username];
 
-                var message = new Message(content, string.Empty, room, _dateTimeProvider.GetNow(), MessageType.Action, user);
+                var message = new Message(CleanMessage(content), string.Empty, room, _dateTimeProvider.GetNow(), MessageType.Action, user);
 
                 OnMessageReceived(new MessageEventArgs(message));
             });
+        }
+
+        private string CleanMessage(string message)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(message);
+
+            return doc.DocumentNode.InnerText;
         }
     }
 }

@@ -5,8 +5,6 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
-    using HtmlAgilityPack;
-
     using NLog;
 
     using Raven.Client;
@@ -36,7 +34,7 @@
             _configuration = configuration;
 
             _client = new JabbrClient(configuration.JabbrUrl, new DefaultDateTimeProvider());
-            _store = new DocumentStore { Url = configuration.RavenDbUrl };
+            _store = new DocumentStore { Url = configuration.RavenUrl, DefaultDatabase = configuration.RavenDatabase };
 
             _botAddressedMatcher = new Regex("^@?" + _configuration.JabbrNick + "[,: ](.*)$", RegexOptions.IgnoreCase);
         }
@@ -80,7 +78,7 @@
         private void MessageReceived(object sender, MessageEventArgs e)
         {
             
-            var text = WebUtility.HtmlDecode(CleanMessage(e.Message.Content));
+            var text = WebUtility.HtmlDecode(e.Message.Content);
             var isBotAddressed = false;
 
             var addressMatch = _botAddressedMatcher.Match(text);
@@ -100,14 +98,6 @@
                 };
 
             _messageManager.HandleMessage(message);
-        }
-
-        private string CleanMessage(string message)
-        {
-            var doc = new HtmlDocument();
-            doc.LoadHtml(message);
-
-            return doc.DocumentNode.InnerText;
         }
     }
 }
