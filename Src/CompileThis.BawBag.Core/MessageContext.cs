@@ -6,8 +6,8 @@ namespace CompileThis.BawBag
     {
         public bool IsBotAddressed { get; set; }
         public string Content { get; set; }
-        public IRoom Room { get; set; }
+        public Room Room { get; set; }
         public MessageType Type { get; set; }
-        public IUser User { get; set; }
+        public User User { get; set; }
     }
 }

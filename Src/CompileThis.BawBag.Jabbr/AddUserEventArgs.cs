@@ -4,21 +4,21 @@ namespace CompileThis.BawBag.Jabbr
 
     public class AddUserEventArgs : EventArgs
     {
-        private readonly IRoom _room;
-        private readonly IUser _user;
+        private readonly Room _room;
+        private readonly User _user;
 
-        public AddUserEventArgs(IRoom room, IUser user)
+        public AddUserEventArgs(Room room, User user)
         {
             _room = room;
             _user = user;
         }
 
-        public IRoom Room
+        public Room Room
         {
             get { return _room; }
         }
 
-        public IUser User
+        public User User
         {
             get { return _user; }
         }

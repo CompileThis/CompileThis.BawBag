@@ -1,4 +1,4 @@
-﻿namespace CompileThis.BawBag.Jabbr
+﻿namespace CompileThis.BawBag.Jabbr.ServerModels
 {
     public class JabbrRoomSummary
     {

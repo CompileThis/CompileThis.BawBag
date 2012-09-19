@@ -1,28 +1,56 @@
 ﻿namespace CompileThis.BawBag.Jabbr
 {
+    using System.Threading.Tasks;
+
     using CompileThis.BawBag.Jabbr.Collections;
 
-    internal class Room : IRoom
+    public class Room
     {
+        private readonly IJabbrClient _client;
+
         private readonly LookupList<string, User> _users;
         private readonly LookupList<string, User> _owners;
  
-        internal Room()
+        internal Room(IJabbrClient client)
         {
+            _client = client;
+
             _users = new LookupList<string, User>(x => x.Name);
             _owners = new LookupList<string, User>(x => x.Name);
         }
 
-        IReadOnlyLookupList<string, IUser> IRoom.Owners { get { return _owners; } }
-        IReadOnlyLookupList<string, IUser> IRoom.Users { get { return _users; } }
+        public bool IsClosed { get; internal set; }
+        public bool IsPrivate { get; internal set; }
+        public string Name { get; internal set; }
+        public IReadOnlyLookupList<string, User> Owners { get { return _owners; } }
+        public string Topic { get; internal set; }
+        public int UserCount { get; internal set; }
+        public IReadOnlyLookupList<string, User> Users { get { return _users; } }
+        public string Welcome { get; internal set; }
 
-        public bool IsClosed { get; set; }
-        public bool IsPrivate { get; set; }
-        public string Name { get; set; }
-        public LookupList<string, User> Owners { get { return _owners; } }
-        public string Topic { get; set; }
-        public int UserCount { get; set; }
-        public LookupList<string, User> Users { get { return _users; } }
-        public string Welcome { get; set; }
+        public Task Kick(User user)
+        {
+            return _client.Kick(user.Name, Name);
+        }
+
+        internal  void AddOwner(User owner)
+        {
+            _owners.Add(owner);
+        }
+
+        internal void AddUser(User user)
+        {
+            _users.Add(user);
+        }
+
+        internal  void RemoveOwner(User owner)
+        {
+            _owners.Remove(owner);
+        }
+
+        internal void RemoveUser(User user)
+        {
+            _users.Remove(user);
+        }
     }
 }

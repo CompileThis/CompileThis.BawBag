@@ -2,18 +2,21 @@ namespace CompileThis.BawBag.Jabbr
 {
     using System;
 
-    internal class User : IUser
+    public class User
     {
-        public string AfkNote { get; set; }
-        public string Country { get; set; }
-        public string Flag { get; set; }
-        public string Id { set; get; }
-        public string Name { get; set; }
-        public bool IsActive { get; set; }
-        public bool IsAdmin { get; set; }
-        public bool IsAfk { get; set; }
-        public DateTime LastActivity { get; set; }
-        public string Note { get; set; }
-        public UserStatus Status { get; set; }
+        internal User()
+        { }
+
+        public string AfkNote { get; internal set; }
+        public string Country { get; internal set; }
+        public string Flag { get; internal set; }
+        public string Id { set; internal get; }
+        public string Name { get; internal set; }
+        public bool IsActive { get; internal set; }
+        public bool IsAdmin { get; internal set; }
+        public bool IsAfk { get; internal set; }
+        public DateTime LastActivity { get; internal set; }
+        public string Note { get; internal set; }
+        public UserStatus Status { get; internal set; }
     }
 }

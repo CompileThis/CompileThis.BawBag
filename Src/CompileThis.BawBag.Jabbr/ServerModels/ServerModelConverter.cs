@@ -5,9 +5,9 @@
 
     internal static class ServerModelConverter
     {
-        public static Room ToRoom(JabbrRoom jabbrRoom, LookupList<string, User> users)
+        public static Room ToRoom(JabbrRoom jabbrRoom, IJabbrClient client, LookupList<string, User> users)
         {
-            var room = new Room
+            var room = new Room(client)
                 {
                     Name = jabbrRoom.Name,
                     IsClosed = jabbrRoom.Closed,
@@ -20,13 +20,13 @@
             foreach (var jabbrUser in jabbrRoom.Users)
             {
                 var user = ToUser(jabbrUser, users);
-                room.Users.Add(user);
+                room.AddUser(user);
             }
 
             foreach (var username in jabbrRoom.Owners)
             {
                 var user = users[username];
-                room.Owners.Add(user);
+                room.AddOwner(user);
             }
 
             return room;

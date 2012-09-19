@@ -64,7 +64,7 @@
             }
         }
 
-        private async void ExecuteResult(MessageHandlerResult result, IRoom room, IUser user)
+        private async void ExecuteResult(MessageHandlerResult result, Room room, User user)
         {
             if (!result.IsHandled)
             {

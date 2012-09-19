@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+
     using HtmlAgilityPack;
+
     using SignalR.Client.Hubs;
 
     using CompileThis.BawBag.Jabbr.Collections;
@@ -11,10 +13,9 @@
 
     public class JabbrClient : IJabbrClient
     {
-        public event EventHandler<JoinedRoomEventArgs> JoinedRoom;
         public event EventHandler<MessageEventArgs> MessageReceived;
-        public event EventHandler<LeftRoomEventArgs> LeftRoom;
-        public event EventHandler<AddUserEventArgs> AddUser;
+        public event EventHandler<LeftRoomEventArgs> UserLeftRoom;
+        public event EventHandler<AddUserEventArgs> UserJoinedRoom;
 
         private readonly IDateTimeProvider _dateTimeProvider;
 
@@ -33,36 +34,25 @@
 
             _rooms = new LookupList<string, Room>(x => x.Name);
             _users = new LookupList<string, User>(x => x.Name);
-
-            _chatHub.On<JabbrRoomSummary>("joinRoom", HandleJoinRoom);
-            _chatHub.On<JabbrMessage, string>("addMessage", HandleAddMessage);
-            _chatHub.On<JabbrUser, string>("leave", HandleLeaveMessage);
-            _chatHub.On<JabbrUser, string, bool>("addUser", HandleAddUser);
-            _chatHub.On<string, string, string>("sendMeMessage", HandleAddAction);
         }
 
-        IReadOnlyLookupList<string, IRoom> IJabbrClient.Rooms
+        public IReadOnlyLookupList<string, Room> Rooms
         {
             get { return _rooms; }
         }
 
-        internal LookupList<string, Room> Rooms
-        {
-            get { return _rooms; }
-        }
-
-        IReadOnlyLookupList<string, IUser> IJabbrClient.Users
-        {
-            get { return _users; }
-        }
-
-        internal LookupList<string, User> Users
+        public IReadOnlyLookupList<string, User> Users
         {
             get { return _users; }
         }
 
         public async Task Connect(string username, string password)
         {
+            _chatHub.On<JabbrMessage, string>("addMessage", HandleAddMessage);
+            _chatHub.On<string, string, string>("sendMeMessage", HandleAddAction);
+            _chatHub.On<JabbrUser, string, bool>("addUser", UserJoinedHandler);
+            _chatHub.On<JabbrUser, string>("leave", UserLeftHandler);
+
             await _connection.Start();
 
             var tcs = new TaskCompletionSource<object>();
@@ -73,8 +63,8 @@
                     {
                         var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name);
                         jabbrRoom.Private = summary.Private;
+                        var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
 
-                        var room = ServerModelConverter.ToRoom(jabbrRoom, _users);
                         _rooms.Add(room);
                     }
 
@@ -103,9 +93,30 @@
             _connection.Stop();
         }
 
-        public Task JoinRoom(string roomName)
+        public async Task<Room> JoinRoom(string roomName)
         {
-            return _chatHub.Invoke("Send", string.Format("/join #{0}", roomName), "");
+            var tcs = new TaskCompletionSource<Room>();
+
+            var joinHandle = _chatHub.On<JabbrRoomSummary>("joinRoom", async summary =>
+                {
+                    var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name);
+                    var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
+
+                    _rooms.Add(room);
+
+                    tcs.SetResult(room);
+                });
+
+            try
+            {
+                await _chatHub.Invoke("Send", string.Format("/join #{0}", roomName), "");
+                
+                return await tcs.Task;
+            }
+            finally
+            {
+                joinHandle.Dispose();
+            }
         }
 
         public Task SendMessage(string room, string message)
@@ -138,15 +149,6 @@
             return _chatHub.Invoke("Send", "/logout", "");
         }
 
-        protected virtual void OnJoinedRoom(JoinedRoomEventArgs e)
-        {
-            var handler = JoinedRoom;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
         protected virtual void OnMessageReceived(MessageEventArgs e)
         {
             var handler = MessageReceived;
@@ -156,35 +158,22 @@
             }
         }
 
-        protected virtual void OnLeftRoom(LeftRoomEventArgs e)
+        protected virtual void OnUserLeftRoom(LeftRoomEventArgs e)
         {
-            var handler = LeftRoom;
+            var handler = UserLeftRoom;
             if (handler != null)
             {
                 handler(this, e);
             }
         }
 
-        protected virtual void OnAddUser(AddUserEventArgs e)
+        protected virtual void OnUserJoinedRoom(AddUserEventArgs e)
         {
-            var handler = AddUser;
+            var handler = UserJoinedRoom;
             if (handler != null)
             {
                 handler(this, e);
             }
-        }
-
-        private void HandleJoinRoom(JabbrRoomSummary roomSummary)
-        {
-            Task.Factory.StartNew(async () =>
-            {
-                var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", roomSummary.Name);
-                var room = ServerModelConverter.ToRoom(jabbrRoom, _users);
-
-                _rooms.Add(room);
-
-                OnJoinedRoom(new JoinedRoomEventArgs(room));
-            });
         }
 
         private void HandleAddMessage(JabbrMessage jabbrMessage, string roomName)
@@ -194,46 +183,46 @@
                     var room = _rooms[roomName];
                     var user = ServerModelConverter.ToUser(jabbrMessage.User, _users);
 
-                    var message = new Message(CleanMessage(jabbrMessage.Content), jabbrMessage.Id, room, jabbrMessage.When, MessageType.Default, user);
+                    var message = new ReceivedMessage(CleanMessage(jabbrMessage.Content), jabbrMessage.Id, room, jabbrMessage.When, MessageType.Default, user);
 
                     OnMessageReceived(new MessageEventArgs(message));
                 });
         }
 
-        private void HandleLeaveMessage(JabbrUser jabbrUser, string roomName)
-        {
-            Task.Factory.StartNew(() =>
-            {
-                var room = _rooms[roomName];
-                var user = ServerModelConverter.ToUser(jabbrUser, _users);
-
-                room.Users.Remove(user.Name);
-
-                if (room.Owners.Contains(user.Name))
-                {
-                    room.Owners.Remove(user.Name);
-                }
-
-                OnLeftRoom(new LeftRoomEventArgs(room, user));
-            });
-        }
-
-        private void HandleAddUser(JabbrUser jabbrUser, string roomName, bool isOwner)
+        private void UserJoinedHandler(JabbrUser jabbrUser, string roomName, bool isOwner)
         {
             Task.Factory.StartNew(() =>
                 {
                     var room = _rooms[roomName];
                     var user = ServerModelConverter.ToUser(jabbrUser, _users);
 
-                    room.Users.Add(user);
+                    room.AddUser(user);
 
                     if (isOwner)
                     {
-                        room.Owners.Add(user);
+                        room.AddOwner(user);
                     }
 
-                    OnAddUser(new AddUserEventArgs(room, user));
+                    OnUserJoinedRoom(new AddUserEventArgs(room, user));
                 });
+        }
+
+        private void UserLeftHandler(JabbrUser jabbrUser, string roomName)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                var room = _rooms[roomName];
+                var user = ServerModelConverter.ToUser(jabbrUser, _users);
+
+                room.RemoveUser(user);
+
+                if (room.Owners.Contains(user.Name))
+                {
+                    room.RemoveOwner(user);
+                }
+
+                OnUserLeftRoom(new LeftRoomEventArgs(room, user));
+            });
         }
 
         private void HandleAddAction(string username, string content, string roomName)
@@ -243,13 +232,13 @@
                 var room = _rooms[roomName];
                 var user = _users[username];
 
-                var message = new Message(CleanMessage(content), string.Empty, room, _dateTimeProvider.GetNow(), MessageType.Action, user);
+                var message = new ReceivedMessage(CleanMessage(content), string.Empty, room, _dateTimeProvider.GetNow(), MessageType.Action, user);
 
                 OnMessageReceived(new MessageEventArgs(message));
             });
         }
 
-        private string CleanMessage(string message)
+        private static string CleanMessage(string message)
         {
             var doc = new HtmlDocument();
             doc.LoadHtml(message);

@@ -4,14 +4,14 @@
 
     public class MessageEventArgs : EventArgs
     {
-        private readonly Message _message;
+        private readonly ReceivedMessage _message;
 
-        public MessageEventArgs(Message message)
+        public MessageEventArgs(ReceivedMessage message)
         {
             _message = message;
         }
 
-        public Message Message
+        public ReceivedMessage Message
         {
             get { return _message; }
         }

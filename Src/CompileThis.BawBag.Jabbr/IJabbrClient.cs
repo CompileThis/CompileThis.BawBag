@@ -6,18 +6,17 @@ namespace CompileThis.BawBag.Jabbr
 
     public interface IJabbrClient
     {
-        event EventHandler<JoinedRoomEventArgs> JoinedRoom;
         event EventHandler<MessageEventArgs> MessageReceived;
-        event EventHandler<LeftRoomEventArgs> LeftRoom;
-        event EventHandler<AddUserEventArgs> AddUser;
+        event EventHandler<LeftRoomEventArgs> UserLeftRoom;
+        event EventHandler<AddUserEventArgs> UserJoinedRoom;
 
-        IReadOnlyLookupList<string, IRoom> Rooms { get; }
-        IReadOnlyLookupList<string, IUser> Users { get; }
+        IReadOnlyLookupList<string, Room> Rooms { get; }
+        IReadOnlyLookupList<string, User> Users { get; }
 
         Task Connect(string username, string password);
         Task Disconnect();
 
-        Task JoinRoom(string room);
+        Task<Room> JoinRoom(string room);
         Task LeaveRoom(string room);
 
         Task SendMessage(string room, string message);
