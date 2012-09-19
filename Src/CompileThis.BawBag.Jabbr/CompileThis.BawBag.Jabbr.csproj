@@ -70,7 +70,7 @@
     <Compile Include="ServerModels\JabbrUser.cs" />
     <Compile Include="ServerModels\JabbrUserStatus.cs" />
     <Compile Include="LeftRoomEventArgs.cs" />
-    <Compile Include="MessageEventArgs.cs" />
+    <Compile Include="MessageReceivedEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerModels\ServerModelConverter.cs" />
     <Compile Include="User.cs" />

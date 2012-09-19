@@ -76,10 +76,10 @@
             await _client.Disconnect();
         }
 
-        private void MessageReceived(object sender, MessageEventArgs e)
+        private void MessageReceived(object sender, MessageReceivedEventArgs e)
         {
             
-            var text = WebUtility.HtmlDecode(e.Message.Content);
+            var text = WebUtility.HtmlDecode(e.Message.Text);
             var isBotAddressed = false;
 
             var addressMatch = _botAddressedMatcher.Match(text);
@@ -93,9 +93,9 @@
                 {
                     IsBotAddressed = isBotAddressed,
                     Content = text,
-                    Room = e.Message.Room,
+                    Room = e.Context.Room,
                     Type = e.Message.Type,
-                    User = e.Message.User
+                    User = e.Context.User
                 };
 
             _messageManager.HandleMessage(message);

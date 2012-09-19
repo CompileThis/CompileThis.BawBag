@@ -13,7 +13,7 @@
 
     public class JabbrClient : IJabbrClient
     {
-        public event EventHandler<MessageEventArgs> MessageReceived;
+        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
         public event EventHandler<LeftRoomEventArgs> UserLeftRoom;
         public event EventHandler<AddUserEventArgs> UserJoinedRoom;
 
@@ -119,14 +119,14 @@
             }
         }
 
-        public Task SendMessage(string room, string message)
+        public Task SendDefaultMessage(string text, string roomName)
         {
-            return _chatHub.Invoke("Send", message, room);
+            return _chatHub.Invoke("Send", text, roomName);
         }
 
-        public Task SendAction(string room, string action)
+        public Task SendActionMessage(string text, string roomName)
         {
-            return _chatHub.Invoke("Send", string.Format("/me {0}", action), room);
+            return _chatHub.Invoke("Send", string.Format("/me {0}", text), roomName);
         }
 
         public Task Kick(string username, string room)
@@ -149,7 +149,7 @@
             return _chatHub.Invoke("Send", "/logout", "");
         }
 
-        protected virtual void OnMessageReceived(MessageEventArgs e)
+        protected virtual void OnMessageReceived(MessageReceivedEventArgs e)
         {
             var handler = MessageReceived;
             if (handler != null)
@@ -183,9 +183,10 @@
                     var room = _rooms[roomName];
                     var user = ServerModelConverter.ToUser(jabbrMessage.User, _users);
 
-                    var message = new ReceivedMessage(CleanMessage(jabbrMessage.Content), jabbrMessage.Id, room, jabbrMessage.When, MessageType.Default, user);
+                    var message = new ReceivedMessage(MessageType.Default, CleanMessage(jabbrMessage.Content), jabbrMessage.Id, jabbrMessage.When);
+                    var context = new JabbrEventContext(room, user);
 
-                    OnMessageReceived(new MessageEventArgs(message));
+                    OnMessageReceived(new MessageReceivedEventArgs(message, context));
                 });
         }
 
@@ -232,9 +233,10 @@
                 var room = _rooms[roomName];
                 var user = _users[username];
 
-                var message = new ReceivedMessage(CleanMessage(content), string.Empty, room, _dateTimeProvider.GetNow(), MessageType.Action, user);
+                var message = new ReceivedMessage(MessageType.Action, CleanMessage(content), null, _dateTimeProvider.GetNow());
+                var context = new JabbrEventContext(room, user);
 
-                OnMessageReceived(new MessageEventArgs(message));
+                OnMessageReceived(new MessageReceivedEventArgs(message, context));
             });
         }
 

@@ -6,7 +6,7 @@ namespace CompileThis.BawBag.Jabbr
 
     public interface IJabbrClient
     {
-        event EventHandler<MessageEventArgs> MessageReceived;
+        event EventHandler<MessageReceivedEventArgs> MessageReceived;
         event EventHandler<LeftRoomEventArgs> UserLeftRoom;
         event EventHandler<AddUserEventArgs> UserJoinedRoom;
 
@@ -19,8 +19,8 @@ namespace CompileThis.BawBag.Jabbr
         Task<Room> JoinRoom(string room);
         Task LeaveRoom(string room);
 
-        Task SendMessage(string room, string message);
-        Task SendAction(string room, string action);
+        Task SendDefaultMessage(string text, string roomName);
+        Task SendActionMessage(string text, string roomName);
         Task Kick(string username, string room);
     }
 }

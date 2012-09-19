@@ -33,6 +33,16 @@
             return _client.Kick(user.Name, Name);
         }
 
+        public Task SendActionMessage(string text)
+        {
+            return _client.SendActionMessage(text, Name);
+        }
+
+        public Task SendDefaultMessage(string text)
+        {
+            return _client.SendDefaultMessage(text, Name);
+        }
+
         internal  void AddOwner(User owner)
         {
             _owners.Add(owner);

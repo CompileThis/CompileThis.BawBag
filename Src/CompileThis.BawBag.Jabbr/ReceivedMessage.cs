@@ -4,36 +4,27 @@
 
     public class ReceivedMessage
     {
-        private readonly string _content;
+        private readonly string _text;
         private readonly string _id;
-        private readonly Room _room;
         private readonly DateTimeOffset _timestamp;
         private readonly MessageType _type;
-        private readonly User _user;
 
-        internal ReceivedMessage(string content, string id, Room room, DateTimeOffset timestamp, MessageType type, User user)
+        internal ReceivedMessage(MessageType type, string text, string id, DateTimeOffset timestamp)
         {
-            _content = content;
+            _text = text;
             _id = id;
-            _room = room;
             _timestamp = timestamp;
             _type = type;
-            _user = user;
         }
 
-        public string Content
+        public string Text
         {
-            get { return _content; }
+            get { return _text; }
         }
 
         public string Id
         {
             get { return _id; }
-        }
-
-        public Room Room
-        {
-            get { return _room; }
         }
 
         public DateTimeOffset Timestamp
@@ -44,11 +35,6 @@
         public MessageType Type
         {
             get { return _type; }
-        }
-
-        public User User
-        {
-            get { return _user; }
         }
     }
 
@@ -74,12 +60,12 @@
         }
     }
 
-    public class MessageContext
+    public class JabbrEventContext
     {
         private readonly Room _room;
         private readonly User _user;
 
-        internal MessageContext(Room room, User user)
+        internal JabbrEventContext(Room room, User user)
         {
             _room = room;
             _user = user;

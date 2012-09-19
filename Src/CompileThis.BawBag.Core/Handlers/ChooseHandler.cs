@@ -49,7 +49,7 @@ namespace CompileThis.BawBag.Handlers
 
             if (options.Count == 0)
             {
-                var messageResponse = new MessageResponse {ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("{0}: confuse BawBag, receive kicking...", message.User.Name)};
+                var messageResponse = new MessageResponse {ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("{0}: confuse BawBag, receive kicking...", message.User.Name)};
                 var kickResponse = new MessageResponse {ResponseType = MessageHandlerResultResponseType.Kick};
 
                 return new MessageHandlerResult
@@ -64,7 +64,7 @@ namespace CompileThis.BawBag.Handlers
 
             var response = new MessageResponse
                 {
-                    ResponseType = MessageHandlerResultResponseType.Message,
+                    ResponseType = MessageHandlerResultResponseType.DefaultMessage,
                     ResponseText = text
                 };
 

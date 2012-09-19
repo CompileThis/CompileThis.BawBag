@@ -54,7 +54,7 @@
 
             var response = new MessageResponse
             {
-                ResponseType = MessageHandlerResultResponseType.Message,
+                ResponseType = MessageHandlerResultResponseType.DefaultMessage,
                 ResponseText = string.Format("@{0}, {1}!", message.User.Name, answerText)
             };
 

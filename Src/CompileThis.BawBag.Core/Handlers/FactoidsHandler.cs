@@ -52,7 +52,7 @@
                 case FactoidResponseType.Is:
                     response = new MessageResponse
                         {
-                            ResponseType = MessageHandlerResultResponseType.Message,
+                            ResponseType = MessageHandlerResultResponseType.DefaultMessage,
                             ResponseText = string.Format("{0} is {1}", message.Content, responseText)
                         };
                     break;
@@ -60,7 +60,7 @@
                 case FactoidResponseType.Action:
                     response = new MessageResponse
                     {
-                        ResponseType = MessageHandlerResultResponseType.Action,
+                        ResponseType = MessageHandlerResultResponseType.ActionMessage,
                         ResponseText = responseText
                     };
                     break;
@@ -68,7 +68,7 @@
                 case FactoidResponseType.Reply:
                     response = new MessageResponse
                     {
-                        ResponseType = MessageHandlerResultResponseType.Message,
+                        ResponseType = MessageHandlerResultResponseType.DefaultMessage,
                         ResponseText = responseText
                     };
                     break;

@@ -111,7 +111,7 @@
                 return new MessageHandlerResult
                     {
                         IsHandled = true,
-                        Responses = new[] {new MessageResponse {ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: I already had it that way!", message.User.Name)}}
+                        Responses = new[] {new MessageResponse {ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: I already had it that way!", message.User.Name)}}
                     };
             }
 
@@ -128,7 +128,7 @@
             return new MessageHandlerResult
             {
                 IsHandled = true,
-                Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("OK @{0} factoid stored.", message.User.Name) } }
+                Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("OK @{0} factoid stored.", message.User.Name) } }
             };
         }
 
@@ -149,7 +149,7 @@
                 return new MessageHandlerResult
                     {
                         IsHandled = true,
-                        Responses = new[] {new MessageResponse {ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: no factoid is defined for '{1}'.", message.User.Name, trigger)}}
+                        Responses = new[] {new MessageResponse {ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: no factoid is defined for '{1}'.", message.User.Name, trigger)}}
                     };
             }
 
@@ -166,7 +166,7 @@
             return new MessageHandlerResult
                 {
                     IsHandled = true,
-                    Responses = new[] {new MessageResponse {ResponseType = MessageHandlerResultResponseType.Message, ResponseText = sb.ToString()}}
+                    Responses = new[] {new MessageResponse {ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = sb.ToString()}}
                 };
         }
 
@@ -187,7 +187,7 @@
                 return new MessageHandlerResult
                 {
                     IsHandled = true,
-                    Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: no factoid is defined for '{1}'.", message.User.Name, trigger) } }
+                    Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: no factoid is defined for '{1}'.", message.User.Name, trigger) } }
                 };
             }
 
@@ -199,7 +199,7 @@
                 return new MessageHandlerResult
                 {
                     IsHandled = true,
-                    Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: removed factoid '{1}'.", message.User.Name, trigger) } }
+                    Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: removed factoid '{1}'.", message.User.Name, trigger) } }
                 };
             }
 
@@ -211,7 +211,7 @@
                 return new MessageHandlerResult
                 {
                     IsHandled = true,
-                    Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: invalid response number '{1}'.", message.User.Name, indexValue) } }
+                    Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: invalid response number '{1}'.", message.User.Name, indexValue) } }
                 };
             }
 
@@ -220,7 +220,7 @@
             return new MessageHandlerResult
             {
                 IsHandled = true,
-                Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.Message, ResponseText = string.Format("@{0}: removed reponse {2} for factoid '{1}'.", message.User.Name, trigger, index) } }
+                Responses = new[] { new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: removed reponse {2} for factoid '{1}'.", message.User.Name, trigger, index) } }
             };
         }
     }

@@ -46,7 +46,7 @@
 
                         var result = handler.Execute(message, new MessageHandlerContext(session));
 
-                        ExecuteResult(result, message.Room, message.User);
+                        ExecuteResult(result, message.Room);
 
                         var continueProcessing = (!result.IsHandled || handler.ContinueProcessing);
                         if (!continueProcessing)
@@ -64,7 +64,7 @@
             }
         }
 
-        private async void ExecuteResult(MessageHandlerResult result, Room room, User user)
+        private async void ExecuteResult(MessageHandlerResult result, Room room)
         {
             if (!result.IsHandled)
             {
@@ -75,12 +75,12 @@
             {
                 switch (response.ResponseType)
                 {
-                    case MessageHandlerResultResponseType.Message:
-                        await _client.SendMessage(room.Name, response.ResponseText);
+                    case MessageHandlerResultResponseType.DefaultMessage:
+                        await _client.SendDefaultMessage(response.ResponseText, room.Name);
                         break;
 
-                    case MessageHandlerResultResponseType.Action:
-                        await _client.SendAction(room.Name, response.ResponseText);
+                    case MessageHandlerResultResponseType.ActionMessage:
+                        await _client.SendActionMessage(response.ResponseText, room.Name);
                         break;
 
                     case MessageHandlerResultResponseType.Kick:
@@ -90,7 +90,7 @@
             }
         }
 
-        private IEnumerable<IMessageHandler> GetHandlers()
+        private static IEnumerable<IMessageHandler> GetHandlers()
         {
             var assembly = Assembly.GetExecutingAssembly();
 

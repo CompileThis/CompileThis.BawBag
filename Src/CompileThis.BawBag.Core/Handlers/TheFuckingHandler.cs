@@ -40,7 +40,7 @@
 
             var response = new MessageResponse
                 {
-                    ResponseType = MessageHandlerResultResponseType.Message,
+                    ResponseType = MessageHandlerResultResponseType.DefaultMessage,
                     ResponseText = text
                 };
 

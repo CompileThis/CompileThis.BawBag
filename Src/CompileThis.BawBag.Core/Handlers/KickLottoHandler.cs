@@ -42,7 +42,7 @@
             {
                 var response = new MessageResponse
                 {
-                    ResponseType = MessageHandlerResultResponseType.Message,
+                    ResponseType = MessageHandlerResultResponseType.DefaultMessage,
                     ResponseText = "Only one lotto per hour bitch!"
                 };
 
@@ -61,7 +61,7 @@
             {
                 var response = new MessageResponse
                     {
-                        ResponseType = MessageHandlerResultResponseType.Message,
+                        ResponseType = MessageHandlerResultResponseType.DefaultMessage,
                         ResponseText = "There's no-one to kick you lonely bastard!"
                     };
 
@@ -79,7 +79,7 @@
 
             var responseMessage = new MessageResponse
                 {
-                    ResponseType = MessageHandlerResultResponseType.Message,
+                    ResponseType = MessageHandlerResultResponseType.DefaultMessage,
                     ResponseText = string.Format("Congratulations @{0}, you've just won the kicklotto!", selectedUser.Name)
                 };
 
