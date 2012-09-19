@@ -7,6 +7,7 @@
     public interface ILookup<in TKey, out TValue>
     {
         TValue this[TKey key] { get; }
+        TValue this[int index] { get; }
         bool Contains(TKey key);
         TValue GetValueOrDefault(TKey key);
     }
@@ -15,24 +16,24 @@
     { }
 
     public interface ILookupList<in TKey, TValue> : ICollection<TValue>, ILookup<TKey, TValue>
-        where TValue : class 
+        where TValue : class
     {
         bool Remove(TKey key);
     }
 
     public class LookupList<TKey, TValue> : ILookupList<TKey, TValue>, IReadOnlyLookupList<TKey, TValue>
-        where TValue : class 
+        where TValue : class
     {
         private readonly List<TValue> _values;
         private readonly Dictionary<TKey, TValue> _lookup;
 
-        private readonly Func<TValue, TKey> _keyLookup; 
+        private readonly Func<TValue, TKey> _keyLookup;
 
         public LookupList(Func<TValue, TKey> keyLookup)
         {
             _values = new List<TValue>();
             _lookup = new Dictionary<TKey, TValue>();
-            
+
             _keyLookup = keyLookup;
         }
 
@@ -129,6 +130,11 @@
         {
             TValue value;
             return _lookup.TryGetValue(key, out value) ? value : default(TValue);
+        }
+
+        public TValue this[int index]
+        {
+            get { return _values[index]; }
         }
     }
 }

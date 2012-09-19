@@ -70,13 +70,13 @@ using Raven.Client;
             await _client.Disconnect();
         }
 
-        private void LoggedOn(object sender, EventArgs e)
+        private async void LoggedOn(object sender, EventArgs e)
         {
             foreach (var roomName in _configuration.Rooms)
             {
                 if (!_client.Rooms.Contains(roomName))
                 {
-                    _client.JoinRoom(roomName);
+                    await _client.JoinRoom(roomName);
                 }
             }
         }
