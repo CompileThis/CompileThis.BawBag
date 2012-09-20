@@ -64,6 +64,7 @@
     <Compile Include="Handlers\Factoids\Factoid.cs" />
     <Compile Include="Handlers\Factoids\FactoidResponseType.cs" />
     <Compile Include="Handlers\RandomChoices\ChooseHandler.cs" />
+    <Compile Include="Handlers\RandomChoices\DickLottoHandler.cs" />
     <Compile Include="Handlers\RandomChoices\RollHandler.cs" />
     <Compile Include="Handlers\Wordplay\SexactlyHandler.cs" />
     <Compile Include="Handlers\Factoids\EditFactiodsHandler.cs" />
