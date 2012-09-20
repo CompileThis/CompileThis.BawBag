@@ -58,8 +58,7 @@
             {
                 if (!_client.Rooms.Contains(roomName))
                 {
-                    var x = await _client.JoinRoom(roomName);
-                    x.GetType();
+                    await _client.JoinRoom(roomName);
                 }
             }
         }

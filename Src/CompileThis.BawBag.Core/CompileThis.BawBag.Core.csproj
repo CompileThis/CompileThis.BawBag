@@ -60,14 +60,17 @@
   <ItemGroup>
     <Compile Include="BawBagBot.cs" />
     <Compile Include="BawBagBotConfiguration.cs" />
-    <Compile Include="Handlers\ChooseHandler.cs" />
-    <Compile Include="Handlers\RollHandler.cs" />
-    <Compile Include="Handlers\SexactlyHandler.cs" />
-    <Compile Include="Handlers\EditFactiodsHandler.cs" />
-    <Compile Include="Handlers\FactoidsHandler.cs" />
-    <Compile Include="Handlers\KickLottoHandler.cs" />
-    <Compile Include="Handlers\QuestionHandler.cs" />
-    <Compile Include="Handlers\TheFuckingHandler.cs" />
+    <Compile Include="Handlers\Factoids\FactiodResponse.cs" />
+    <Compile Include="Handlers\Factoids\Factoid.cs" />
+    <Compile Include="Handlers\Factoids\FactoidResponseType.cs" />
+    <Compile Include="Handlers\RandomChoices\ChooseHandler.cs" />
+    <Compile Include="Handlers\RandomChoices\RollHandler.cs" />
+    <Compile Include="Handlers\Wordplay\SexactlyHandler.cs" />
+    <Compile Include="Handlers\Factoids\EditFactiodsHandler.cs" />
+    <Compile Include="Handlers\Factoids\FactoidsHandler.cs" />
+    <Compile Include="Handlers\RandomChoices\KickLottoHandler.cs" />
+    <Compile Include="Handlers\RandomChoices\QuestionHandler.cs" />
+    <Compile Include="Handlers\Wordplay\TheFuckingHandler.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="MessageContext.cs" />
     <Compile Include="MessageHandlerContext.cs" />

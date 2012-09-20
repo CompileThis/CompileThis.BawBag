@@ -6,6 +6,8 @@
 
     using HtmlAgilityPack;
 
+    using NLog;
+
     using SignalR.Client.Hubs;
 
     using CompileThis.BawBag.Jabbr.Collections;
@@ -16,6 +18,8 @@
         public event EventHandler<MessageReceivedEventArgs> MessageReceived;
         public event EventHandler<LeftRoomEventArgs> UserLeftRoom;
         public event EventHandler<AddUserEventArgs> UserJoinedRoom;
+
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly IDateTimeProvider _dateTimeProvider;
 
@@ -61,11 +65,15 @@
                 {
                     foreach (var summary in summaries)
                     {
+                        Log.Info("Registering room '{0}'.", summary.Name);
+
                         var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name);
                         jabbrRoom.Private = summary.Private;
                         var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
 
                         _rooms.Add(room);
+
+                        Log.Info("Registered room '{0}'.", room.Name);
                     }
 
                     tcs.SetResult(null);
@@ -99,12 +107,15 @@
 
             var joinHandle = _chatHub.On<JabbrRoomSummary>("joinRoom", async summary =>
                 {
+                    Log.Info("Joining room '{0}'.", summary.Name);
+
                     var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name);
                     var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
 
                     _rooms.Add(room);
 
                     tcs.SetResult(room);
+                    Log.Info("Joined room '{0}'.", room.Name);
                 });
 
             try
