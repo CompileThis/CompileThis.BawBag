@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="BawBagBot.cs" />
     <Compile Include="BawBagBotConfiguration.cs" />
+    <Compile Include="Extensibility\IPlugin.cs" />
     <Compile Include="Handlers\Factoids\FactiodResponse.cs" />
     <Compile Include="Handlers\Factoids\Factoid.cs" />
     <Compile Include="Handlers\Factoids\FactoidResponseType.cs" />
