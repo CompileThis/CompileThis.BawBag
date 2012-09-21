@@ -52,6 +52,8 @@
 
         public async Task Connect(string username, string password)
         {
+            Log.Info("Connecting to JabbR.");
+
             _chatHub.On<JabbrMessage, string>("addMessage", HandleAddMessage);
             _chatHub.On<string, string, string>("sendMeMessage", HandleAddAction);
             _chatHub.On<JabbrUser, string, bool>("addUser", UserJoinedHandler);
@@ -63,6 +65,8 @@
 
             var logOnHandle = _chatHub.On<IEnumerable<JabbrRoomSummary>>("logOn", async summaries =>
                 {
+                    Log.Trace("Entered event handler.");
+
                     foreach (var summary in summaries)
                     {
                         Log.Info("Registering room '{0}'.", summary.Name);
@@ -76,6 +80,7 @@
                         Log.Info("Registered room '{0}'.", room.Name);
                     }
 
+                    Log.Trace("Completed event handler.");
                     tcs.SetResult(null);
                 });
 
@@ -91,8 +96,11 @@
             }
             finally
             {
+                Log.Trace("Disposing event handler.");
                 logOnHandle.Dispose();
             }
+
+            Log.Info("Connected to JabbR.");
         }
 
         public async Task Disconnect()
@@ -126,6 +134,7 @@
             }
             finally
             {
+                Log.Trace("Dispose Joining room event for '{0}'.", roomName);
                 joinHandle.Dispose();
             }
         }

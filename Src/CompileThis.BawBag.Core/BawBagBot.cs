@@ -1,6 +1,5 @@
 ﻿namespace CompileThis.BawBag
 {
-    using System;
     using System.Net;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;

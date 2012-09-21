@@ -100,7 +100,7 @@
             text = SomeoneExpression.Replace(text, m =>
                 {
                     var index = RandomProvider.Next(message.Room.Users.Count);
-                    var userName = message.Room.Users[index];
+                    var userName = message.Room.Users[index].Name;
 
                     return "@" + userName;
                 });
