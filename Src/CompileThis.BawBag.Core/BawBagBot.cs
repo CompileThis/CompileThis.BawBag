@@ -10,6 +10,7 @@
     using Raven.Client.Document;
 
     using CompileThis.BawBag.Jabbr;
+    using CompileThis.BawBag.Extensibility;
 
     public class BawBagBot
     {
@@ -22,7 +23,7 @@
 
         private readonly Regex _botAddressedMatcher;
 
-        private MessageHandlerManager _messageManager;
+        private PluginManager _pluginManager;
 
         public BawBagBot()
             : this(BawBagBotConfiguration.FromConfigFile())
@@ -47,7 +48,9 @@
             Log.Info("Connecting to '{0}' as '{1}'.", _configuration.JabbrUrl, _configuration.JabbrNick);
 
             _store.Initialize();
-            _messageManager = new MessageHandlerManager(_client, _store, _configuration.JabbrNick);
+
+            _pluginManager = new PluginManager();
+            _pluginManager.Initialize();
 
             await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
 
@@ -76,7 +79,11 @@
 
         private void MessageReceived(object sender, MessageReceivedEventArgs e)
         {
-            
+            if (e.Context.User.Name == _configuration.JabbrNick)
+            {
+                return;
+            }
+
             var text = WebUtility.HtmlDecode(e.Message.Text);
             var isBotAddressed = false;
 
@@ -87,16 +94,27 @@
                 text = addressMatch.Groups[1].Value.Trim();
             }
 
-            var message = new MessageContext
-                {
-                    IsBotAddressed = isBotAddressed,
-                    Content = text,
-                    Room = e.Context.Room,
-                    Type = e.Message.Type,
-                    User = e.Context.User
-                };
+            using (var session = _store.OpenSession())
+            {
 
-            _messageManager.HandleMessage(message);
+                var message = new Message
+                    {
+                        Text = text,
+                        Type = e.Message.Type,
+                    };
+
+                var context = new PluginContext
+                    {
+                        IsBotAddressed = isBotAddressed,
+                        Room = e.Context.Room,
+                        User = e.Context.User,
+                        RavenSession = session
+                    };
+
+                _pluginManager.ProcessMessage(message, context, _client);
+
+                session.SaveChanges();
+            }
         }
     }
 }

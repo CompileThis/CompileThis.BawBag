@@ -38,28 +38,6 @@
         }
     }
 
-    public class Message
-    {
-        private readonly string _text;
-        private readonly MessageType _type;
-
-        public Message(MessageType type, string text)
-        {
-            _type = type;
-            _text = text;
-        }
-
-        public string Text
-        {
-            get { return _text; }
-        }
-
-        public MessageType Type
-        {
-            get { return _type; }
-        }
-    }
-
     public class JabbrEventContext
     {
         private readonly Room _room;

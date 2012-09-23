@@ -1,0 +1,46 @@
+﻿namespace CompileThis.BawBag.Plugins.Wordplay
+{
+    using System;
+    using System.Text.RegularExpressions;
+
+    using CompileThis.BawBag.Extensibility;
+    using CompileThis.BawBag.Jabbr;
+
+    internal class TheFuckingHandler : MessageHandlerPluginBase
+    {
+        private static readonly Regex Matcher = new Regex("(the) (fucking)", RegexOptions.IgnoreCase);
+        private static readonly Random RandomProvider = new Random();
+
+        public TheFuckingHandler()
+            : base("The Fucking", PluginPriority.Normal, continueProcessing: false, mustBeAddressed: false)
+        { }
+
+        protected override MessageHandlerResult ExecuteCore(Message message, IPluginContext context)
+        {
+            if (context.IsBotAddressed || message.Type != MessageType.Default)
+            {
+                return NotHandled();
+            }
+
+            if (!Matcher.IsMatch(message.Text) || RandomProvider.Next(2) == 0)
+            {
+                return MessageHandlerResult.NotHandled;
+            }
+
+            var text = Matcher.Replace(message.Text, "$2 $1");
+
+            var response = new MessageResponse
+                {
+                    ResponseType = MessageHandlerResultResponseType.DefaultMessage,
+                    ResponseText = text
+                };
+
+            return Handled(response);
+        }
+
+        public override void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
