@@ -53,7 +53,7 @@
             _store.Initialize();
 
             _pluginManager = new PluginManager();
-            _pluginManager.Initialize();
+            _pluginManager.Initialize(_configuration.PluginsDirectory);
 
             await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
 

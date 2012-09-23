@@ -1,4 +1,4 @@
-namespace CompileThis.BawBag
+namespace CompileThis.BawBag.Extensibility
 {
     public enum MessageHandlerResultResponseType
     {

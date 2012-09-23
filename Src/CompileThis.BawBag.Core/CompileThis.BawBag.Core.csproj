@@ -76,7 +76,7 @@
     <Compile Include="Plugins\RandomChoices\QuestionHandler.cs" />
     <Compile Include="Plugins\Wordplay\TheFuckingHandler.cs" />
     <Compile Include="Extensibility\MessageHandlerResult.cs" />
-    <Compile Include="MessageHandlerResultResponseType.cs" />
+    <Compile Include="Extensibility\MessageHandlerResultResponseType.cs" />
     <Compile Include="Extensibility\MessageResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
 
@@ -26,8 +27,10 @@
             }
         }
 
-        public void Initialize()
+        public void Initialize(string pluginsDirectory)
         {
+            pluginsDirectory = Path.Combine(Assembly.GetEntryAssembly().Location, pluginsDirectory);
+
             var assembly = Assembly.GetExecutingAssembly();
 
             var handlerTypes = assembly.GetTypes().Where(x => x.IsClass && !x.IsAbstract && typeof(IPlugin).IsAssignableFrom(x));
