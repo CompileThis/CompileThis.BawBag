@@ -9,7 +9,6 @@
     internal class RollHandler : MessageHandlerPluginBase
     {
         private static readonly Regex Matcher = new Regex(@"^\s*roll\s+(?<count>\d+)?d(?<sides>\d+)\s*$", RegexOptions.IgnoreCase);
-        private static readonly Random RandomProvider = new Random();
 
         public RollHandler()
             : base("Roll", PluginPriority.Normal, continueProcessing: false, mustBeAddressed: true)

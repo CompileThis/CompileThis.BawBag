@@ -7,8 +7,6 @@
 
     public class DickLottoHandler : MessageHandlerPluginBase
     {
-        private static readonly Random RandomProvider = new Random();
-
         private DateTimeOffset _lastLotto;
 
         public DickLottoHandler()
@@ -47,7 +45,7 @@
 
             _lastLotto = now;
 
-            var selectedIndex = RandomProvider.Next(0, dickableUsers.Count);
+            var selectedIndex = context.RandomProvider.Next(0, dickableUsers.Count);
             var selectedUser = dickableUsers[selectedIndex];
 
             var responseMessage = new MessageResponse

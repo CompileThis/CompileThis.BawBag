@@ -9,7 +9,6 @@
     internal class TheFuckingHandler : MessageHandlerPluginBase
     {
         private static readonly Regex Matcher = new Regex("(the) (fucking)", RegexOptions.IgnoreCase);
-        private static readonly Random RandomProvider = new Random();
 
         public TheFuckingHandler()
             : base("The Fucking", PluginPriority.Normal, continueProcessing: false, mustBeAddressed: false)
@@ -22,7 +21,7 @@
                 return NotHandled();
             }
 
-            if (!Matcher.IsMatch(message.Text) || RandomProvider.Next(2) == 0)
+            if (!Matcher.IsMatch(message.Text) || context.RandomProvider.Next(2) == 0)
             {
                 return MessageHandlerResult.NotHandled;
             }

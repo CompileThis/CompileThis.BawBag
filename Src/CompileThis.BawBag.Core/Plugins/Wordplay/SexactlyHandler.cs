@@ -2,13 +2,13 @@
 {
     using System;
     using System.Text.RegularExpressions;
+
     using CompileThis.BawBag.Extensibility;
     using CompileThis.BawBag.Jabbr;
 
     internal class SexactlyHandler : MessageHandlerPluginBase
     {
         private static readonly Regex Matcher = new Regex(@"\b(ex.*?)\b", RegexOptions.IgnoreCase);
-        private static readonly Random RandomProvider = new Random();
 
         public SexactlyHandler()
             : base("Sexactly", PluginPriority.Normal, continueProcessing: false, mustBeAddressed: false)
@@ -21,7 +21,7 @@
                 return NotHandled();
             }
 
-            if (!Matcher.IsMatch(message.Text) || RandomProvider.Next(2) == 0)
+            if (!Matcher.IsMatch(message.Text) || context.RandomProvider.Next(2) == 0)
             {
                 return MessageHandlerResult.NotHandled;
             }

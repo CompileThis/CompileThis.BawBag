@@ -7,8 +7,6 @@
 
     public class KickLottoHandler : MessageHandlerPluginBase
     {
-        private static readonly Random RandomProvider = new Random();
-
         private DateTimeOffset _lastLotto;
 
         public KickLottoHandler()
@@ -54,7 +52,7 @@
 
             _lastLotto = now;
 
-            var selectedIndex = RandomProvider.Next(0, kickableUsers.Count);
+            var selectedIndex = context.RandomProvider.Next(0, kickableUsers.Count);
             var selectedUser = kickableUsers[selectedIndex];
 
             var responseMessage = new MessageResponse

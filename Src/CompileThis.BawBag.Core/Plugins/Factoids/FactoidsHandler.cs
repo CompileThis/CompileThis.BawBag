@@ -12,8 +12,6 @@
         private static readonly Regex WhoExpression = new Regex(@"\$\{who\}", RegexOptions.IgnoreCase);
         private static readonly Regex SomeoneExpression = new Regex(@"\$\{someone\}", RegexOptions.IgnoreCase);
 
-        private static readonly Random RandomProvider = new Random();
-
         public FactoidsHandler()
             : base("Factoids", PluginPriority.Low, continueProcessing: false, mustBeAddressed: false)
         { }
@@ -30,7 +28,7 @@
             }
 
             var matchingResponses = factoid.Responses.Where(x => !x.IsCaseSensitive || x.Trigger == responseTrigger).ToList();
-            var index = RandomProvider.Next(matchingResponses.Count);
+            var index = context.RandomProvider.Next(matchingResponses.Count);
 
             var factoidResponse = matchingResponses[index];
             var responseText = ProcessResponseText(factoidResponse.Response, context);
@@ -89,7 +87,7 @@
             text = WhoExpression.Replace(text, "@" + context.User.Name);
             text = SomeoneExpression.Replace(text, m =>
                 {
-                    var index = RandomProvider.Next(context.Room.Users.Count);
+                    var index = context.RandomProvider.Next(context.Room.Users.Count);
                     var userName = context.Room.Users[index].Name;
 
                     return "@" + userName;

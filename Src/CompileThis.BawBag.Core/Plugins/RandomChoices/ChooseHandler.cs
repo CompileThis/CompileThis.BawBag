@@ -10,7 +10,6 @@
     internal class ChooseHandler : MessageHandlerPluginBase
     {
         private static readonly Regex Matcher = new Regex("^(?:choose )?(.*?) (?:or (.*?))+[.?]?$");
-        private static readonly Random RandomProvider = new Random();
 
         public ChooseHandler()
             : base("Choose", PluginPriority.Normal, continueProcessing: false, mustBeAddressed: true)
@@ -40,7 +39,7 @@
                 return Handled(messageResponse, kickResponse);
             }
             
-            var index = RandomProvider.Next(0, options.Count);
+            var index = context.RandomProvider.Next(0, options.Count);
             var text = string.Format("@{0}, {1}", context.User.Name, options[index]);
 
             var response = new MessageResponse
