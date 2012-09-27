@@ -58,6 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="AddUserEventArgs.cs" />
     <Compile Include="Collections\ILookupList.cs" />
     <Compile Include="DefaultDateTimeProvider.cs" />

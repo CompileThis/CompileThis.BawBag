@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{50E6D2E0-E022-487C-8DCF-B0B5286BC2E7}</ProjectGuid>
+    <ProjectGuid>{FD6491DD-CBFE-456C-BD4C-A5C11E16B19A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CompileThis.BawBag</RootNamespace>
-    <AssemblyName>CompileThis.BawBag.Core</AssemblyName>
+    <RootNamespace>CompileThis.BawBag.Core</RootNamespace>
+    <AssemblyName>CompileThis.BawBag.Core.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
@@ -32,66 +32,39 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\packages\Newtonsoft.Json.4.5.9\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Abstractions">
-      <HintPath>..\..\packages\RavenDB.Client.1.2.2085-Unstable\lib\net40\Raven.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\..\packages\RavenDB.Client.1.2.2085-Unstable\lib\net40\Raven.Client.Lightweight.dll</HintPath>
-    </Reference>
-    <Reference Include="SignalR.Client">
-      <HintPath>..\..\packages\SignalR.Client.0.5.3\lib\net40\SignalR.Client.dll</HintPath>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\..\packages\FluentAssertions.2.0.0-beta\Lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="xunit">
+      <HintPath>..\..\packages\xunit.2.0.0-alpha-build1611\lib\net45\xunit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="BawBagBot.cs" />
-    <Compile Include="BawBagBotConfiguration.cs" />
-    <Compile Include="Extensibility\IPlugin.cs" />
-    <Compile Include="Extensibility\PluginContext.cs" />
-    <Compile Include="Extensibility\PluginManager.cs" />
-    <Compile Include="Plugins\Factoids\FactiodResponse.cs" />
-    <Compile Include="Plugins\Factoids\Factoid.cs" />
-    <Compile Include="Plugins\Factoids\FactoidResponseType.cs" />
-    <Compile Include="Plugins\RandomChoices\ChooseHandler.cs" />
-    <Compile Include="Plugins\RandomChoices\DickLottoHandler.cs" />
-    <Compile Include="Plugins\RandomChoices\RollHandler.cs" />
-    <Compile Include="Plugins\Wordplay\SexactlyHandler.cs" />
-    <Compile Include="Plugins\Factoids\EditFactiodsHandler.cs" />
-    <Compile Include="Plugins\Factoids\FactoidsHandler.cs" />
-    <Compile Include="Plugins\RandomChoices\KickLottoHandler.cs" />
-    <Compile Include="Plugins\RandomChoices\QuestionHandler.cs" />
-    <Compile Include="Plugins\Wordplay\TheFuckingHandler.cs" />
-    <Compile Include="Extensibility\MessageHandlerResult.cs" />
-    <Compile Include="Extensibility\MessageHandlerResultResponseType.cs" />
-    <Compile Include="Extensibility\MessageResponse.cs" />
+    <Compile Include="Plugins\RandomChoices\ChooseHandlerFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
+    <ProjectReference Include="..\CompileThis.BawBag.Core\CompileThis.BawBag.Core.csproj">
+      <Project>{50e6d2e0-e022-487c-8dcf-b0b5286bc2e7}</Project>
+      <Name>CompileThis.BawBag.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CompileThis.BawBag.Jabbr\CompileThis.BawBag.Jabbr.csproj">
       <Project>{51c61bb4-94ed-48b5-ae36-9da30a3a9f5e}</Project>
       <Name>CompileThis.BawBag.Jabbr</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

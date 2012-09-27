@@ -1,4 +1,4 @@
 ﻿using System.Reflection;
 
-[assembly: AssemblyTitle("CompileThis.BawBag.Service")]
+[assembly: AssemblyTitle("CompileThis.BawBag.Core.Test")]
 [assembly: AssemblyDescription("")]
