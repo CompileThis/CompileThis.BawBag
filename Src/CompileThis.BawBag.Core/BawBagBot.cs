@@ -1,6 +1,5 @@
 ﻿namespace CompileThis.BawBag
 {
-    using System;
     using System.Net;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
@@ -21,7 +20,7 @@
         
         private readonly IJabbrClient _client;
         private readonly IDocumentStore _store;
-        private readonly Random _randomProvider;
+        private readonly IRandomNumberProvider _randomProvider;
 
         private readonly Regex _botAddressedMatcher;
 
@@ -37,7 +36,7 @@
 
             _client = new JabbrClient(configuration.JabbrUrl, new DefaultDateTimeProvider());
             _store = new DocumentStore { Url = configuration.RavenUrl, DefaultDatabase = configuration.RavenDatabase };
-            _randomProvider = new Random();
+            _randomProvider = new RandomNumberProvider();
 
             _botAddressedMatcher = new Regex("^@?" + _configuration.JabbrNick + "[,: ](.*)$", RegexOptions.IgnoreCase);
         }

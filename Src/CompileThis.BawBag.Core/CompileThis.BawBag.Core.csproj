@@ -64,8 +64,10 @@
     <Compile Include="BawBagBot.cs" />
     <Compile Include="BawBagBotConfiguration.cs" />
     <Compile Include="Extensibility\IPlugin.cs" />
+    <Compile Include="Extensibility\IRandomNumberProvider.cs" />
     <Compile Include="Extensibility\PluginContext.cs" />
     <Compile Include="Extensibility\PluginManager.cs" />
+    <Compile Include="Extensibility\RandomNumberProvider.cs" />
     <Compile Include="Plugins\Factoids\FactiodResponse.cs" />
     <Compile Include="Plugins\Factoids\Factoid.cs" />
     <Compile Include="Plugins\Factoids\FactoidResponseType.cs" />

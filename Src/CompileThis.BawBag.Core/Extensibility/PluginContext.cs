@@ -1,7 +1,5 @@
 ﻿namespace CompileThis.BawBag.Extensibility
 {
-    using System;
-
     using Raven.Client;
 
     using CompileThis.BawBag.Jabbr;
@@ -12,7 +10,7 @@
         Room Room { get; }
         User User { get; }
         IDocumentSession RavenSession { get; }
-        Random RandomProvider { get; }
+        IRandomNumberProvider RandomProvider { get; }
     }
 
     internal class PluginContext : IPluginContext
@@ -21,7 +19,7 @@
         public Room Room { get; set; }
         public User User { get; set; }
         public IDocumentSession RavenSession { get; set; }
-        public Random RandomProvider { get; set; }
+        public IRandomNumberProvider RandomProvider { get; set; }
     }
 
     public class Message
