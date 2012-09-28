@@ -2,7 +2,7 @@
 {
     using CompileThis.BawBag.Jabbr;
     using FluentAssertions;
-
+    using Moq;
     using Xunit;
 
     using CompileThis.BawBag.Extensibility;
@@ -128,6 +128,8 @@
         [Fact]
         public void ChooseHandler_addressed_matches_are_handled()
         {
+            var randomMock = new Mock<IRandomNumberProvider>();
+
             var handler = new ChooseHandler();
 
             var message = new Message()
@@ -143,12 +145,40 @@
                         {
                             Name = "TestUser",
                         },
-                    RandomProvider = null
+                    RandomProvider = randomMock.Object
                 };
 
             var result = handler.Execute(message, context);
 
             result.IsHandled.Should().BeTrue();
+        }
+
+        [Fact]
+        public void ChooseHandler_unaddressed_matches_are_ignored()
+        {
+            var randomMock = new Mock<IRandomNumberProvider>();
+
+            var handler = new ChooseHandler();
+
+            var message = new Message()
+            {
+                Text = "choose a or b",
+                Type = MessageType.Default
+            };
+
+            var context = new PluginContext()
+            {
+                IsBotAddressed = false,
+                User = new User
+                {
+                    Name = "TestUser",
+                },
+                RandomProvider = randomMock.Object
+            };
+
+            var result = handler.Execute(message, context);
+
+            result.IsHandled.Should().BeFalse();
         }
     }
 }
