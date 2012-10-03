@@ -1,6 +1,7 @@
 ﻿namespace CompileThis.BawBag
 {
     using System.Net;
+    using System.Reflection;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
@@ -8,6 +9,7 @@
 
     using Raven.Client;
     using Raven.Client.Document;
+    using Raven.Client.Indexes;
 
     using CompileThis.BawBag.Jabbr;
     using CompileThis.BawBag.Extensibility;
@@ -21,6 +23,7 @@
         private readonly IJabbrClient _client;
         private readonly IDocumentStore _store;
         private readonly IRandomNumberProvider _randomProvider;
+        private readonly IInventoryManager _inventoryManager;
 
         private readonly Regex _botAddressedMatcher;
 
@@ -37,6 +40,7 @@
             _client = new JabbrClient(configuration.JabbrUrl, new DefaultDateTimeProvider());
             _store = new DocumentStore { Url = configuration.RavenUrl, DefaultDatabase = configuration.RavenDatabase };
             _randomProvider = new RandomNumberProvider();
+            _inventoryManager = new InventoryManager(5, _store, _randomProvider);
 
             _botAddressedMatcher = new Regex("^@?" + _configuration.JabbrNick + "[,: ](.*)$", RegexOptions.IgnoreCase);
         }
@@ -50,6 +54,7 @@
             Log.Info("Connecting to '{0}' as '{1}'.", _configuration.JabbrUrl, _configuration.JabbrNick);
 
             _store.Initialize();
+            IndexCreation.CreateIndexes(Assembly.GetExecutingAssembly(), _store);
 
             _pluginManager = new PluginManager();
             _pluginManager.Initialize(_configuration.PluginsDirectory);
@@ -108,10 +113,12 @@
                 var context = new PluginContext
                     {
                         IsBotAddressed = isBotAddressed,
+                        BotName = _configuration.JabbrNick,
                         Room = e.Context.Room,
                         User = e.Context.User,
                         RavenSession = session,
-                        RandomProvider = _randomProvider
+                        RandomProvider = _randomProvider,
+                        InventoryManager = _inventoryManager
                     };
 
                 _pluginManager.ProcessMessage(message, context, _client);

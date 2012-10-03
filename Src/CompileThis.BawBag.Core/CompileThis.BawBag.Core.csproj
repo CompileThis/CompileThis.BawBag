@@ -63,14 +63,17 @@
     </Compile>
     <Compile Include="BawBagBot.cs" />
     <Compile Include="BawBagBotConfiguration.cs" />
+    <Compile Include="Extensibility\InventoryManager.cs" />
     <Compile Include="Extensibility\IPlugin.cs" />
     <Compile Include="Extensibility\IRandomNumberProvider.cs" />
     <Compile Include="Extensibility\PluginContext.cs" />
     <Compile Include="Extensibility\PluginManager.cs" />
     <Compile Include="Extensibility\RandomNumberProvider.cs" />
+    <Compile Include="Extensibility\VariableManager.cs" />
     <Compile Include="Plugins\Factoids\FactiodResponse.cs" />
     <Compile Include="Plugins\Factoids\Factoid.cs" />
     <Compile Include="Plugins\Factoids\FactoidResponseType.cs" />
+    <Compile Include="Plugins\Inventory\EditInventoryHandler.cs" />
     <Compile Include="Plugins\RandomChoices\ChooseHandler.cs" />
     <Compile Include="Plugins\RandomChoices\DickLottoHandler.cs" />
     <Compile Include="Plugins\RandomChoices\RollHandler.cs" />
