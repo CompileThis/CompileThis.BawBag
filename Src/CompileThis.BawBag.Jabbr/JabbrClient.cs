@@ -62,6 +62,7 @@
             await _connection.Start();
 
             var tcs = new TaskCompletionSource<object>();
+            var disposable = new DisposableSource();
 
             var logOnHandle = _chatHub.On<IEnumerable<JabbrRoomSummary>>("logOn", async summaries =>
                 {
@@ -81,24 +82,19 @@
                     }
 
                     Log.Trace("Completed event handler.");
+
                     tcs.SetResult(null);
+                    disposable.Dispose();
                 });
 
-            try
+            disposable.Disposable = logOnHandle;
+            var joinSuccess = await _chatHub.Invoke<bool>("Join");
+            if (!joinSuccess)
             {
-                var joinSuccess = await _chatHub.Invoke<bool>("Join");
-                if (!joinSuccess)
-                {
-                    await SetNick(username, password);
-                }
+                await SetNick(username, password);
+            }
 
-                await tcs.Task;
-            }
-            finally
-            {
-                Log.Trace("Disposing event handler.");
-                logOnHandle.Dispose();
-            }
+            await tcs.Task;
 
             Log.Info("Connected to JabbR.");
         }
@@ -112,6 +108,7 @@
         public async Task<Room> JoinRoom(string roomName)
         {
             var tcs = new TaskCompletionSource<Room>();
+            var disposable = new DisposableSource();
 
             var joinHandle = _chatHub.On<JabbrRoomSummary>("joinRoom", async summary =>
                 {
@@ -124,19 +121,15 @@
 
                     tcs.SetResult(room);
                     Log.Info("Joined room '{0}'.", room.Name);
+
+                    disposable.Dispose();
                 });
 
-            try
-            {
-                await _chatHub.Invoke("Send", string.Format("/join #{0}", roomName), "");
+            disposable.Disposable = joinHandle;
+
+            await _chatHub.Invoke("Send", string.Format("/join #{0}", roomName), "");
                 
-                return await tcs.Task;
-            }
-            finally
-            {
-                Log.Trace("Dispose Joining room event for '{0}'.", roomName);
-                joinHandle.Dispose();
-            }
+            return await tcs.Task;
         }
 
         public Task SendDefaultMessage(string text, string roomName)

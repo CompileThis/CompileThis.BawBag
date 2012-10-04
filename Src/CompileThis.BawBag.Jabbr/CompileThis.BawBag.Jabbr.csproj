@@ -64,6 +64,7 @@
     <Compile Include="AddUserEventArgs.cs" />
     <Compile Include="Collections\ILookupList.cs" />
     <Compile Include="DefaultDateTimeProvider.cs" />
+    <Compile Include="DisposableSource.cs" />
     <Compile Include="IDateTimeProvider.cs" />
     <Compile Include="IJabbrClient.cs" />
     <Compile Include="JabbrClient.cs" />

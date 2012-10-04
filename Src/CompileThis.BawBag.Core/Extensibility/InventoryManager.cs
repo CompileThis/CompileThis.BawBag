@@ -41,7 +41,7 @@
         {
             using (var session = _documentStore.OpenSession())
             {
-                var inventory = session.Query<Inventory>().SingleOrDefault(x => x.Room == roomName);
+                var inventory = session.Query<Inventory>().Customize(x => x.WaitForNonStaleResults()).SingleOrDefault(x => x.Room == roomName);
                 if (inventory == null)
                 {
                     inventory = new Inventory
@@ -59,7 +59,7 @@
                 {
                     session.SaveChanges();
 
-                    return false;
+                    return true;
                 }
 
                 if (inventory.Items.Count >= _inventoryCapacity)
@@ -72,7 +72,7 @@
                 inventory.Items.Add(item);
                 session.SaveChanges();
 
-                return true;
+                return false;
             }
         }
 
