@@ -1,4 +1,4 @@
-﻿namespace CompileThis.BawBag.Extensibility
+﻿namespace CompileThis.BawBag.Extensibility.Internal
 {
     using System;
     using System.Collections.Generic;

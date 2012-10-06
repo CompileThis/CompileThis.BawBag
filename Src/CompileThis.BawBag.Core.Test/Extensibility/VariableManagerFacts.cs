@@ -1,6 +1,7 @@
 ﻿namespace CompileThis.BawBag.Core.Extensibility
 {
     using System.Collections.Generic;
+
     using FluentAssertions;
 
     using Raven.Client.Indexes;
@@ -8,6 +9,7 @@
     using Xunit;
 
     using CompileThis.BawBag.Extensibility;
+    using CompileThis.BawBag.Extensibility.Internal;
 
     public class VariableManagerFacts
     {

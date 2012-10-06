@@ -1,23 +1,11 @@
-﻿namespace CompileThis.BawBag.Extensibility
+﻿namespace CompileThis.BawBag.Extensibility.Internal
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
     using Raven.Client;
 
     using CompileThis.BawBag.Jabbr;
-    
-
-    public interface IInventoryManager
-    {
-        bool AddItem(Room room, InventoryItem item, out InventoryItem droppedItem);
-        bool AddItem(string roomName, InventoryItem item, out InventoryItem droppedItem);
-        IEnumerable<InventoryItem> GetInventory(Room room);
-        IEnumerable<InventoryItem> GetInventory(string roomName);
-        InventoryItem RemoveRandomItem(Room room);
-        InventoryItem RemoveRandomItem(string roomName);
-    }
 
     internal class InventoryManager : IInventoryManager
     {
@@ -141,19 +129,5 @@
                 return item;
             }
         }
-    }
-
-    public class Inventory
-    {
-        public string Id { get; set; }
-        public string Room { get; set; }
-        public List<InventoryItem> Items { get; set; }
-    }
-
-    public class InventoryItem
-    {
-        public string Value { get; set; }
-        public string CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; }
     }
 }

@@ -4,7 +4,7 @@
     using System.Reflection;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
-
+    
     using NLog;
 
     using Raven.Client;
@@ -13,6 +13,7 @@
 
     using CompileThis.BawBag.Jabbr;
     using CompileThis.BawBag.Extensibility;
+    using CompileThis.BawBag.Extensibility.Internal;
 
     public class BawBagBot
     {

@@ -6,6 +6,7 @@
     using Xunit;
 
     using CompileThis.BawBag.Extensibility;
+    using CompileThis.BawBag.Extensibility.Internal;
     using CompileThis.BawBag.Plugins.RandomChoices;
 
     public class ChooseHandlerFacts
