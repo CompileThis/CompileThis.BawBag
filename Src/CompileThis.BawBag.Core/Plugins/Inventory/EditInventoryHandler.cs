@@ -2,8 +2,9 @@
 {
     using System;
     using System.Linq;
-    using CompileThis.BawBag.Extensibility;
     using System.Text.RegularExpressions;
+
+    using CompileThis.BawBag.Extensibility;
     using CompileThis.BawBag.Jabbr;
 
     class EditInventoryHandler : MessageHandlerPluginBase

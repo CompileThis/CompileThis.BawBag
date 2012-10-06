@@ -35,14 +35,11 @@
 
             var handlerTypes = assembly.GetTypes().Where(x => x.IsClass && !x.IsAbstract && typeof(IPlugin).IsAssignableFrom(x));
 
-            var messageHandlers = new List<IMessageHandlerPlugin>();
-            foreach (var handlerType in handlerTypes)
-            {
-                if (typeof(IMessageHandlerPlugin).IsAssignableFrom(handlerType))
-                {
-                    messageHandlers.Add((IMessageHandlerPlugin)Activator.CreateInstance(handlerType));
-                }
-            }
+            var messageHandlers = (
+                    from handlerType in handlerTypes
+                    where typeof(IMessageHandlerPlugin).IsAssignableFrom(handlerType)
+                    select (IMessageHandlerPlugin)Activator.CreateInstance(handlerType)
+                ).ToList();
 
             _messageHandlers = messageHandlers.OrderBy(x => x.Priority).ThenBy(x => x.Name).ToList();
         }

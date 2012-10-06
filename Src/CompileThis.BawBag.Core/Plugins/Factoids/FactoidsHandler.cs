@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Text.RegularExpressions;
+
     using CompileThis.BawBag.Extensibility;
 
     internal class FactoidsHandler : MessageHandlerPluginBase

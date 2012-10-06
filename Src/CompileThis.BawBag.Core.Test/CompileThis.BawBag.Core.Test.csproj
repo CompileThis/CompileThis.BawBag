@@ -105,7 +105,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Extensibility\VariableManagerFacts.cs" />
+    <Compile Include="Extensibility\Internal\VariableManagerFacts.cs" />
     <Compile Include="Plugins\RandomChoices\ChooseHandlerFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

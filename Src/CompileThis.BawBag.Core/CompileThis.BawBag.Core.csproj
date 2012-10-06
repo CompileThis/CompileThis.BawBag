@@ -71,6 +71,7 @@
     <Compile Include="Extensibility\IPlugin.cs" />
     <Compile Include="Extensibility\IPluginContext.cs" />
     <Compile Include="Extensibility\IRandomNumberProvider.cs" />
+    <Compile Include="Extensibility\ITextProcessor.cs" />
     <Compile Include="Extensibility\IVariableManager.cs" />
     <Compile Include="Extensibility\Message.cs" />
     <Compile Include="Extensibility\MessageHandlerPluginBase.cs" />

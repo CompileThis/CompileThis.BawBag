@@ -2,6 +2,7 @@ namespace CompileThis.BawBag.Jabbr
 {
     using System;
     using System.Threading.Tasks;
+
     using CompileThis.BawBag.Jabbr.Collections;
 
     public interface IJabbrClient

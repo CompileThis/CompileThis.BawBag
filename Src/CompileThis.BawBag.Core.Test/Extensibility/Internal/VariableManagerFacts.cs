@@ -1,4 +1,4 @@
-﻿namespace CompileThis.BawBag.Core.Extensibility
+﻿namespace CompileThis.BawBag.Core.Extensibility.Internal
 {
     using System.Collections.Generic;
 
@@ -8,7 +8,6 @@
 
     using Xunit;
 
-    using CompileThis.BawBag.Extensibility;
     using CompileThis.BawBag.Extensibility.Internal;
 
     public class VariableManagerFacts

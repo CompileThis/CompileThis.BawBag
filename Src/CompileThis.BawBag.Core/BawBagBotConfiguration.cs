@@ -1,7 +1,7 @@
-﻿using System.Configuration;
-namespace CompileThis.BawBag
+﻿namespace CompileThis.BawBag
 {
     using System;
+    using System.Configuration;
 
     public class BawBagBotConfiguration
     {
@@ -19,7 +19,6 @@ namespace CompileThis.BawBag
 
         public static BawBagBotConfiguration FromConfigFile()
         {
-
             return new BawBagBotConfiguration
                 {
                     JabbrUrl = ConfigurationManager.AppSettings["BawBag/JabbrUrl"],

@@ -26,16 +26,13 @@
         {
             var handler = new ChooseHandler();
 
-            var message = new Message()
+            var message = new Message
                 {
                     Text = "a or b",
                     Type = MessageType.Action
                 };
 
-            var context = new PluginContext()
-                {
-
-                };
+            var context = new PluginContext();
 
             var result = handler.Execute(message, context);
 
@@ -47,16 +44,13 @@
         {
             var handler = new ChooseHandler();
 
-            var message = new Message()
+            var message = new Message
             {
                 Text = "a or b",
                 Type = MessageType.Broadcast
             };
 
-            var context = new PluginContext()
-            {
-
-            };
+            var context = new PluginContext();
 
             var result = handler.Execute(message, context);
 
@@ -68,16 +62,13 @@
         {
             var handler = new ChooseHandler();
 
-            var message = new Message()
-            {
-                Text = "a or b",
-                Type = MessageType.Private
-            };
+            var message = new Message
+                {
+                    Text = "a or b",
+                    Type = MessageType.Private
+                };
 
-            var context = new PluginContext()
-            {
-
-            };
+            var context = new PluginContext();
 
             var result = handler.Execute(message, context);
 
@@ -89,16 +80,13 @@
         {
             var handler = new ChooseHandler();
 
-            var message = new Message()
-            {
-                Text = "a or b",
-                Type = MessageType.Default
-            };
+            var message = new Message
+                {
+                    Text = "a or b",
+                    Type = MessageType.Default
+                };
 
-            var context = new PluginContext()
-            {
-
-            };
+            var context = new PluginContext();
 
             var result = handler.Execute(message, context);
 
@@ -110,16 +98,16 @@
         {
             var handler = new ChooseHandler();
 
-            var message = new Message()
-            {
-                Text = "a",
-                Type = MessageType.Default
-            };
+            var message = new Message
+                {
+                    Text = "a",
+                    Type = MessageType.Default
+                };
 
-            var context = new PluginContext()
-            {
-                IsBotAddressed = true
-            };
+            var context = new PluginContext
+                {
+                    IsBotAddressed = true
+                };
 
             var result = handler.Execute(message, context);
 
@@ -133,13 +121,13 @@
 
             var handler = new ChooseHandler();
 
-            var message = new Message()
-            {
-                Text = "choose a or b",
-                Type = MessageType.Default
-            };
+            var message = new Message
+                {
+                    Text = "choose a or b",
+                    Type = MessageType.Default
+                };
 
-            var context = new PluginContext()
+            var context = new PluginContext
                 {
                     IsBotAddressed = true,
                     User = new User
@@ -161,21 +149,21 @@
 
             var handler = new ChooseHandler();
 
-            var message = new Message()
-            {
-                Text = "choose a or b",
-                Type = MessageType.Default
-            };
-
-            var context = new PluginContext()
-            {
-                IsBotAddressed = false,
-                User = new User
+            var message = new Message
                 {
-                    Name = "TestUser",
-                },
-                RandomProvider = randomMock.Object
-            };
+                    Text = "choose a or b",
+                    Type = MessageType.Default
+                };
+
+            var context = new PluginContext
+                {
+                    IsBotAddressed = false,
+                    User = new User
+                        {
+                            Name = "TestUser",
+                        },
+                    RandomProvider = randomMock.Object
+                };
 
             var result = handler.Execute(message, context);
 
