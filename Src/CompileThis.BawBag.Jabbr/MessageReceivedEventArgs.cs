@@ -9,6 +9,9 @@
 
         internal MessageReceivedEventArgs(ReceivedMessage message, JabbrEventContext context)
         {
+            Guard.NullParameter(message, () => message);
+            Guard.NullParameter(context, () => context);
+
             _message = message;
             _context = context;
         }

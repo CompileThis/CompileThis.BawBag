@@ -9,6 +9,8 @@
 
         protected MessageHandlerPluginBase(string name, PluginPriority priority, bool continueProcessing, bool mustBeAddressed)
         {
+            Guard.NullParameter(name, () => name);
+
             _name = name;
             _priority = priority;
             _continueProcessing = continueProcessing;
@@ -37,6 +39,9 @@
 
         public MessageHandlerResult Execute(Message message, IPluginContext context)
         {
+            Guard.NullParameter(message, () => message);
+            Guard.NullParameter(context, () => context);
+
             if (MustBeAddressed && !context.IsBotAddressed)
             {
                 return MessageHandlerResult.NotHandled;

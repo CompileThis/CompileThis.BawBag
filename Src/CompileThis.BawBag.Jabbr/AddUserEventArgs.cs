@@ -9,6 +9,9 @@ namespace CompileThis.BawBag.Jabbr
 
         public AddUserEventArgs(Room room, User user)
         {
+            Guard.NullParameter(room, () => room);
+            Guard.NullParameter(user, () => user);
+
             _room = room;
             _user = user;
         }

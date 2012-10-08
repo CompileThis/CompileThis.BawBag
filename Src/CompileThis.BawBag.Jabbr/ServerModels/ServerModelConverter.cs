@@ -1,12 +1,17 @@
 ﻿namespace CompileThis.BawBag.Jabbr.ServerModels
 {
     using System;
-    using CompileThis.BawBag.Jabbr.Collections;
+
+    using CompileThis.Collections.Generic;
 
     internal static class ServerModelConverter
     {
         public static Room ToRoom(JabbrRoom jabbrRoom, IJabbrClient client, LookupList<string, User> users)
         {
+            Guard.NullParameter(jabbrRoom, () => jabbrRoom);
+            Guard.NullParameter(client, () => client);
+            Guard.NullParameter(users, () => users);
+
             var room = new Room(client)
                 {
                     Name = jabbrRoom.Name,
@@ -34,6 +39,9 @@
 
         public static User ToUser(JabbrUser jabbrUser, LookupList<string, User> users)
         {
+            Guard.NullParameter(jabbrUser, () => jabbrUser);
+            Guard.NullParameter(users, () => users);
+
             var user = users.GetValueOrDefault(jabbrUser.Name);
             if (user == null)
             {

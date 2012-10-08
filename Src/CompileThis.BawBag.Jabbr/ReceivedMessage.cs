@@ -11,6 +11,8 @@
 
         internal ReceivedMessage(MessageType type, string text, string id, DateTimeOffset timestamp)
         {
+            Guard.NullParameter(text, () => text);
+
             _text = text;
             _id = id;
             _timestamp = timestamp;

@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+
     using CompileThis.BawBag.Jabbr;
 
     public class MessageHandlerResult
@@ -13,6 +14,9 @@
 
         internal async void Execute(IJabbrClient client, Room room)
         {
+            Guard.NullParameter(client, () => client);
+            Guard.NullParameter(room, () => room);
+
             if (!IsHandled)
             {
                 return;

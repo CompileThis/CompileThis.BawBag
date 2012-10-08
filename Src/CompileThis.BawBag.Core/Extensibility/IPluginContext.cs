@@ -1,6 +1,7 @@
 ﻿namespace CompileThis.BawBag.Extensibility
 {
     using CompileThis.BawBag.Jabbr;
+
     using Raven.Client;
 
     public interface IPluginContext

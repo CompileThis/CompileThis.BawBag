@@ -36,6 +36,8 @@
 
         public BawBagBot(BawBagBotConfiguration configuration)
         {
+            Guard.NullParameter(configuration, () => configuration);
+
             _configuration = configuration;
 
             _client = new JabbrClient(configuration.JabbrUrl, new DefaultDateTimeProvider());
@@ -87,6 +89,9 @@
 
         private void MessageReceived(object sender, MessageReceivedEventArgs e)
         {
+            Guard.NullParameter(sender, () => sender);
+            Guard.NullParameter(e, () => e);
+
             if (e.Context.User.Name == _configuration.JabbrNick)
             {
                 return;

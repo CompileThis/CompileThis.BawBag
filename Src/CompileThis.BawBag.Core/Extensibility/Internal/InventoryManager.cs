@@ -15,6 +15,9 @@
 
         public InventoryManager(int inventoryCapacity, IDocumentStore documentStore, IRandomNumberProvider randomNumberProvider)
         {
+            Guard.NullParameter(documentStore, () => documentStore);
+            Guard.NullParameter(randomNumberProvider, () => randomNumberProvider);
+
             _inventoryCapacity = inventoryCapacity;
             _documentStore = documentStore;
             _randomNumberProvider = randomNumberProvider;
@@ -22,11 +25,17 @@
 
         public bool AddItem(Room room, InventoryItem item, out InventoryItem droppedItem)
         {
+            Guard.NullParameter(room, () => room);
+            Guard.NullParameter(item, () => item);
+
             return AddItem(room.Name, item, out droppedItem);
         }
 
         public bool AddItem(string roomName, InventoryItem item, out InventoryItem droppedItem)
         {
+            Guard.NullParameter(roomName, () => roomName);
+            Guard.NullParameter(item, () => item);
+
             using (var session = _documentStore.OpenSession())
             {
                 var inventory = session.Query<Inventory>().Customize(x => x.WaitForNonStaleResults()).SingleOrDefault(x => x.Room == roomName);
@@ -66,11 +75,15 @@
 
         public IEnumerable<InventoryItem> GetInventory(Room room)
         {
+            Guard.NullParameter(room, () => room);
+
             return GetInventory(room.Name);
         }
 
         public IEnumerable<InventoryItem> GetInventory(string roomName)
         {
+            Guard.NullParameter(roomName, () => roomName);
+
             using (var session = _documentStore.OpenSession())
             {
                 var inventory = session.Query<Inventory>().SingleOrDefault(x => x.Room == roomName);
@@ -92,11 +105,15 @@
 
         public InventoryItem RemoveRandomItem(Room room)
         {
+            Guard.NullParameter(room, () => room);
+
             return RemoveRandomItem(room.Name);
         }
 
         public InventoryItem RemoveRandomItem(string roomName)
         {
+            Guard.NullParameter(roomName, () => roomName);
+
             using (var session = _documentStore.OpenSession())
             {
                 var inventory = session.Query<Inventory>().SingleOrDefault(x => x.Room == roomName);

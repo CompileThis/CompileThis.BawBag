@@ -3,14 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-
+    
     using HtmlAgilityPack;
 
     using NLog;
 
     using SignalR.Client.Hubs;
 
-    using CompileThis.BawBag.Jabbr.Collections;
+    using CompileThis.Collections.Generic;
+
     using CompileThis.BawBag.Jabbr.ServerModels;
 
     public class JabbrClient : IJabbrClient
@@ -31,6 +32,9 @@
 
         public JabbrClient(string url, IDateTimeProvider dateTimeProvider)
         {
+            Guard.NullParameter(url, () => url);
+            Guard.NullParameter(dateTimeProvider, () => dateTimeProvider);
+
             _dateTimeProvider = dateTimeProvider;
 
             _connection = new HubConnection(url);
@@ -52,6 +56,9 @@
 
         public async Task Connect(string username, string password)
         {
+            Guard.NullParameter(username, () => username);
+            Guard.NullParameter(password, () => password);
+
             Log.Info("Connecting to JabbR.");
 
             _chatHub.On<JabbrMessage, string>("addMessage", HandleAddMessage);
@@ -62,7 +69,7 @@
             await _connection.Start();
 
             var tcs = new TaskCompletionSource<object>();
-            var disposable = new DisposableSource();
+            var disposable = new DisposableWrapper();
 
             var logOnHandle = _chatHub.On<IEnumerable<JabbrRoomSummary>>("logOn", async summaries =>
                 {
@@ -107,8 +114,10 @@
 
         public async Task<Room> JoinRoom(string roomName)
         {
+            Guard.NullParameter(roomName, () => roomName);
+
             var tcs = new TaskCompletionSource<Room>();
-            var disposable = new DisposableSource();
+            var disposable = new DisposableWrapper();
 
             var joinHandle = _chatHub.On<JabbrRoomSummary>("joinRoom", async summary =>
                 {

@@ -1,6 +1,7 @@
 ﻿namespace CompileThis.BawBag.Extensibility.Internal
 {
     using System.Linq;
+
     using Raven.Abstractions.Indexing;
     using Raven.Client.Indexes;
 

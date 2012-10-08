@@ -2,7 +2,7 @@
 {
     using System.Threading.Tasks;
 
-    using CompileThis.BawBag.Jabbr.Collections;
+    using CompileThis.Collections.Generic;
 
     public class Room
     {
@@ -13,6 +13,8 @@
  
         internal Room(IJabbrClient client)
         {
+            Guard.NullParameter(client, () => client);
+
             _client = client;
 
             _users = new LookupList<string, User>(x => x.Name);

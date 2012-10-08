@@ -3,7 +3,7 @@ namespace CompileThis.BawBag.Jabbr
     using System;
     using System.Threading.Tasks;
 
-    using CompileThis.BawBag.Jabbr.Collections;
+    using CompileThis.Collections.Generic;
 
     public interface IJabbrClient
     {

@@ -14,6 +14,10 @@
 
         public void ProcessMessage(Message message, IPluginContext context, IJabbrClient client)
         {
+            Guard.NullParameter(message, () => message);
+            Guard.NullParameter(context, () => context);
+            Guard.NullParameter(client, () => client);
+
             foreach (var messageHandler in _messageHandlers)
             {
                 var result = messageHandler.Execute(message, context);
@@ -29,7 +33,9 @@
 
         public void Initialize(string pluginsDirectory)
         {
-            pluginsDirectory = Path.Combine(Assembly.GetEntryAssembly().Location, pluginsDirectory);
+            Guard.NullParameter(pluginsDirectory, () => pluginsDirectory);
+
+            var absolutePluginsDirectory = Path.Combine(Assembly.GetEntryAssembly().Location, pluginsDirectory);
 
             var assembly = Assembly.GetExecutingAssembly();
 
