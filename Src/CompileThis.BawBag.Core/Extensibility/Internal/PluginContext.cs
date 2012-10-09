@@ -13,5 +13,6 @@
         public IDocumentSession RavenSession { get; set; }
         public IRandomNumberProvider RandomProvider { get; set; }
         public IInventoryManager InventoryManager { get; set; }
+        public ITextProcessor TextProcessor { get; set; }
     }
 }

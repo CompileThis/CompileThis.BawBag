@@ -25,6 +25,7 @@
         private readonly IDocumentStore _store;
         private readonly IRandomNumberProvider _randomProvider;
         private readonly IInventoryManager _inventoryManager;
+        private readonly ITextProcessor _textProcessor;
 
         private readonly Regex _botAddressedMatcher;
 
@@ -44,6 +45,7 @@
             _store = new DocumentStore { Url = configuration.RavenUrl, DefaultDatabase = configuration.RavenDatabase };
             _randomProvider = new RandomNumberProvider();
             _inventoryManager = new InventoryManager(5, _store, _randomProvider);
+            _textProcessor = new TextProcessor();
 
             _botAddressedMatcher = new Regex("^@?" + _configuration.JabbrNick + "[,: ](.*)$", RegexOptions.IgnoreCase);
         }
@@ -124,7 +126,8 @@
                         User = e.Context.User,
                         RavenSession = session,
                         RandomProvider = _randomProvider,
-                        InventoryManager = _inventoryManager
+                        InventoryManager = _inventoryManager,
+                        TextProcessor = _textProcessor
                     };
 
                 _pluginManager.ProcessMessage(message, context, _client);

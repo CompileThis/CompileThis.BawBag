@@ -13,5 +13,6 @@
         IDocumentSession RavenSession { get; }
         IRandomNumberProvider RandomProvider { get; }
         IInventoryManager InventoryManager { get; }
+        ITextProcessor TextProcessor { get; }
     }
 }

@@ -2,24 +2,18 @@
 {
     using System;
     using System.Linq;
-    using System.Text.RegularExpressions;
 
     using CompileThis.BawBag.Extensibility;
 
     internal class FactoidsHandler : MessageHandlerPluginBase
     {
-        private static readonly Regex WhitespaceExpression = new Regex(@"\s+");
-        private static readonly Regex SimplifyTextExpression = new Regex(@"[^\sa-zA-Z0-9']+");
-        private static readonly Regex WhoExpression = new Regex(@"\$\{who\}", RegexOptions.IgnoreCase);
-        private static readonly Regex SomeoneExpression = new Regex(@"\$\{someone\}", RegexOptions.IgnoreCase);
-
         public FactoidsHandler()
             : base("Factoids", PluginPriority.Low, continueProcessing: false, mustBeAddressed: false)
         { }
 
         protected override MessageHandlerResult ExecuteCore(Message message, IPluginContext context)
         {
-            var responseTrigger = ProcessText(message.Text);
+            var responseTrigger = context.TextProcessor.SimplifyText(message.Text);
             var factoidTrigger = responseTrigger.ToUpperInvariant();
 
             var factoid = context.RavenSession.Query<Factoid>().SingleOrDefault(x => x.Trigger == factoidTrigger);
@@ -32,7 +26,7 @@
             var index = context.RandomProvider.Next(matchingResponses.Count);
 
             var factoidResponse = matchingResponses[index];
-            var responseText = ProcessResponseText(factoidResponse.Response, context);
+            var responseText = context.TextProcessor.FormatPluginResponse(factoidResponse.Response, context);
 
             MessageResponse response;
 
@@ -76,25 +70,6 @@
         public override void Initialize()
         {
             throw new NotImplementedException();
-        }
-
-        private static string ProcessText(string text)
-        {
-            return WhitespaceExpression.Replace(SimplifyTextExpression.Replace(text, ""), " ").Trim();
-        }
-
-        private static string ProcessResponseText(string text, IPluginContext context)
-        {
-            text = WhoExpression.Replace(text, "@" + context.User.Name);
-            text = SomeoneExpression.Replace(text, m =>
-                {
-                    var index = context.RandomProvider.Next(context.Room.Users.Count);
-                    var userName = context.Room.Users[index].Name;
-
-                    return "@" + userName;
-                });
-
-            return text;
         }
     }
 }
