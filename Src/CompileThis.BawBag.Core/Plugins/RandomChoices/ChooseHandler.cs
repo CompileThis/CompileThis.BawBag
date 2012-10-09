@@ -33,22 +33,12 @@
 
             if (options.Count == 0)
             {
-                var messageResponse = new MessageResponse {ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("{0}: confuse BawBag, receive kicking...", context.User.Name)};
-                var kickResponse = new MessageResponse {ResponseType = MessageHandlerResultResponseType.Kick};
-
-                return Handled(messageResponse, kickResponse);
+                return Handled(Message("{0}: confuse BawBag, receive kicking...", context.User.Name), Kick());
             }
             
             var index = context.RandomProvider.Next(0, options.Count);
-            var text = string.Format("@{0}, {1}", context.User.Name, options[index]);
 
-            var response = new MessageResponse
-                {
-                    ResponseType = MessageHandlerResultResponseType.DefaultMessage,
-                    ResponseText = text
-                };
-
-            return Handled(response);
+            return Handled(Message("@{0}: {1}", context.User.Name, options[index]));
         }
 
         public override void Initialize()

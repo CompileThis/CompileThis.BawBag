@@ -37,13 +37,7 @@
                 answerText = PositiveResponses[answerIndex];
             }
 
-            var response = new MessageResponse
-            {
-                ResponseType = MessageHandlerResultResponseType.DefaultMessage,
-                ResponseText = string.Format("@{0}, {1}!", context.User.Name, answerText)
-            };
-
-            return Handled(response);
+            return Handled(Message("@{0}: {1}!", context.User.Name, answerText));
         }
 
         public override void Initialize()

@@ -23,18 +23,12 @@
 
             if (!Matcher.IsMatch(message.Text) || context.RandomProvider.Next(2) == 0)
             {
-                return MessageHandlerResult.NotHandled;
+                return NotHandled();
             }
 
             var text = Matcher.Replace(message.Text, "$2 $1");
 
-            var response = new MessageResponse
-                {
-                    ResponseType = MessageHandlerResultResponseType.DefaultMessage,
-                    ResponseText = text
-                };
-
-            return Handled(response);
+            return Handled(Message(text));
         }
 
         public override void Initialize()

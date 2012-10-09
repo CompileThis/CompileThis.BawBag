@@ -33,38 +33,22 @@
             switch (factoidResponse.ResponseType)
             {
                 case FactoidResponseType.Is:
-                    response = new MessageResponse
-                        {
-                            ResponseType = MessageHandlerResultResponseType.DefaultMessage,
-                            ResponseText = string.Format("{0} is {1}", message.Text, responseText)
-                        };
+                    response = Message("{0} is {1}", message.Text, responseText);
                     break;
 
                 case FactoidResponseType.Action:
-                    response = new MessageResponse
-                    {
-                        ResponseType = MessageHandlerResultResponseType.ActionMessage,
-                        ResponseText = responseText
-                    };
+                    response = Action(responseText);
                     break;
 
                 case FactoidResponseType.Reply:
-                    response = new MessageResponse
-                    {
-                        ResponseType = MessageHandlerResultResponseType.DefaultMessage,
-                        ResponseText = responseText
-                    };
+                    response = Message(responseText);
                     break;
 
                 default:
                     throw new Exception("Unknown response type.");
             }
 
-            return new MessageHandlerResult
-                {
-                    IsHandled = true,
-                    Responses = new[] { response }
-                };
+            return Handled(response);
         }
 
         public override void Initialize()

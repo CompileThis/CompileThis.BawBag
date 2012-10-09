@@ -47,28 +47,15 @@
             var isDuplicate = context.InventoryManager.AddItem(context.Room, item, out droppedItem, context.TextProcessor);
             if (isDuplicate)
             {
-                return Handled(new MessageResponse
-                    {
-                        ResponseType = MessageHandlerResultResponseType.DefaultMessage,
-                        ResponseText = string.Format("No thanks, @{0}, I've already got one.", context.User.Name)
-                    });
+                return Handled(Message("No thanks, @{0}, I've already got one.", context.User.Name));
             }
 
             if (droppedItem == null)
             {
-                return Handled(new MessageResponse
-                    {
-                        ResponseType = MessageHandlerResultResponseType.ActionMessage,
-                        ResponseText = string.Format("now contains {0}.", item.Value)
-                    });
+                return Handled(Action("now contains {0}.", item.Value));
             }
 
-            return
-                Handled(new MessageResponse
-                    {
-                        ResponseType = MessageHandlerResultResponseType.ActionMessage,
-                        ResponseText = string.Format("drops {0} and takes {1}.", droppedItem.Value, item.Value)
-                    });
+            return Handled(Action("drops {0} and takes {1}.", droppedItem.Value, item.Value));
         }
 
         public override void Initialize()

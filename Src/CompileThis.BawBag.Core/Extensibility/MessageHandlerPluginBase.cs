@@ -66,30 +66,29 @@
                 };
         }
 
-        protected MessageResponse Action(string text)
+        protected MessageResponse Action(string text, params object[] arguments)
         {
             return new MessageResponse
                 {
                     ResponseType = MessageHandlerResultResponseType.ActionMessage,
-                    ResponseText = text
+                    ResponseText = string.Format(text, arguments)
                 };
         }
 
-        protected MessageResponse Kick(string userName)
+        protected MessageResponse Kick()
         {
             return new MessageResponse
             {
-                ResponseType = MessageHandlerResultResponseType.Kick,
-                ResponseText = userName
+                ResponseType = MessageHandlerResultResponseType.Kick
             };
         }
 
-        protected MessageResponse Message(string text)
+        protected MessageResponse Message(string text, params object[] arguments)
         {
             return new MessageResponse
             {
                 ResponseType = MessageHandlerResultResponseType.DefaultMessage,
-                ResponseText = text
+                ResponseText = string.Format(text, arguments)
             };
         }
     }

@@ -95,12 +95,10 @@
     <Compile Include="Plugins\Factoids\FactoidResponseType.cs" />
     <Compile Include="Plugins\Inventory\EditInventoryHandler.cs" />
     <Compile Include="Plugins\RandomChoices\ChooseHandler.cs" />
-    <Compile Include="Plugins\RandomChoices\DickLottoHandler.cs" />
     <Compile Include="Plugins\RandomChoices\RollHandler.cs" />
     <Compile Include="Plugins\Wordplay\SexactlyHandler.cs" />
     <Compile Include="Plugins\Factoids\EditFactiodsHandler.cs" />
     <Compile Include="Plugins\Factoids\FactoidsHandler.cs" />
-    <Compile Include="Plugins\RandomChoices\KickLottoHandler.cs" />
     <Compile Include="Plugins\RandomChoices\QuestionHandler.cs" />
     <Compile Include="Plugins\Wordplay\TheFuckingHandler.cs" />
     <Compile Include="Extensibility\MessageHandlerResult.cs" />

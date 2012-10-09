@@ -124,7 +124,7 @@
             var factoid = context.RavenSession.Query<Factoid>().SingleOrDefault(x => x.Trigger == factoidTrigger);
             if (factoid == null)
             {
-                return Handled(new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: no factoid is defined for '{1}'.", context.User.Name, trigger) });
+                return Handled(Message("@{0}: no factoid is defined for '{1}'.", context.User.Name, trigger));
             }
 
             var sb = new StringBuilder();
@@ -137,7 +137,7 @@
                 sb.AppendLine();
             }
 
-            return Handled(new MessageResponse {ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = sb.ToString()});
+            return Handled(Message(sb.ToString()));
         }
 
         private MessageHandlerResult RemoveFactoid(Match match, IPluginContext context)
@@ -154,7 +154,7 @@
             var factoid = context.RavenSession.Query<Factoid>().SingleOrDefault(x => x.Trigger == factoidTrigger);
             if (factoid == null)
             {
-                return Handled(new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: no factoid is defined for '{1}'.", context.User.Name, trigger) });
+                return Handled(Message("@{0}: no factoid is defined for '{1}'.", context.User.Name, trigger));
             }
 
             var indexValue = match.Groups["index"].Value;
@@ -162,7 +162,7 @@
             {
                 context.RavenSession.Delete(factoid);
 
-                return Handled(new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: removed factoid '{1}'.", context.User.Name, trigger) });
+                return Handled(Message("@{0}: removed factoid '{1}'.", context.User.Name, trigger));
             }
 
             int index;
@@ -170,12 +170,12 @@
 
             if (index < 1 || index > factoid.Responses.Count)
             {
-                return Handled(new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: invalid response number '{1}'.", context.User.Name, indexValue) });
+                return Handled(Message("@{0}: invalid response number '{1}'.", context.User.Name, indexValue));
             }
 
             factoid.Responses.RemoveAt(index - 1);
 
-            return Handled(new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: removed reponse {2} for factoid '{1}'.", context.User.Name, trigger, index) });
+            return Handled(Message("@{0}: removed reponse {2} for factoid '{1}'.", context.User.Name, trigger, index));
         }
     }
 }
