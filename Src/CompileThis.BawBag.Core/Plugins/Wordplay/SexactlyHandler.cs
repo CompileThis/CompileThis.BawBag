@@ -26,7 +26,21 @@
                 return NotHandled();
             }
 
-            var text = Matcher.Replace(message.Text, "s$1");
+            var text = Matcher.Replace(message.Text, m =>
+                {
+                    var capture = m.Captures[0].Value;
+                    if (capture[0] == 'e')
+                    {
+                        return "s" + capture;
+                    }
+
+                    if (capture[1] == 'X')
+                    {
+                        return "SE" + capture.Substring(1);
+                    }
+
+                    return "Se" + capture.Substring(1);
+                });
 
             return Handled(Message(text));
         }
