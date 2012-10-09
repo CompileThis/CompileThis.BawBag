@@ -65,5 +65,32 @@
                     Responses = responses
                 };
         }
+
+        protected MessageResponse Action(string text)
+        {
+            return new MessageResponse
+                {
+                    ResponseType = MessageHandlerResultResponseType.ActionMessage,
+                    ResponseText = text
+                };
+        }
+
+        protected MessageResponse Kick(string userName)
+        {
+            return new MessageResponse
+            {
+                ResponseType = MessageHandlerResultResponseType.Kick,
+                ResponseText = userName
+            };
+        }
+
+        protected MessageResponse Message(string text)
+        {
+            return new MessageResponse
+            {
+                ResponseType = MessageHandlerResultResponseType.DefaultMessage,
+                ResponseText = text
+            };
+        }
     }
 }
