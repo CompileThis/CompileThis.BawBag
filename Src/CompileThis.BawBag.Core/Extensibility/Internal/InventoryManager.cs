@@ -23,15 +23,15 @@
             _randomNumberProvider = randomNumberProvider;
         }
 
-        public bool AddItem(Room room, InventoryItem item, out InventoryItem droppedItem)
+        public bool AddItem(Room room, InventoryItem item, out InventoryItem droppedItem, ITextProcessor textProcessor)
         {
             Guard.NullParameter(room, () => room);
             Guard.NullParameter(item, () => item);
 
-            return AddItem(room.Name, item, out droppedItem);
+            return AddItem(room.Name, item, out droppedItem, textProcessor);
         }
 
-        public bool AddItem(string roomName, InventoryItem item, out InventoryItem droppedItem)
+        public bool AddItem(string roomName, InventoryItem item, out InventoryItem droppedItem, ITextProcessor textProcessor)
         {
             Guard.NullParameter(roomName, () => roomName);
             Guard.NullParameter(item, () => item);
@@ -52,7 +52,7 @@
 
                 droppedItem = null;
 
-                if (inventory.Items.Any(x => x.Value == item.Value))
+                if (inventory.Items.Any(x => textProcessor.SimplifiedEquals(x.Value, item.Value)))
                 {
                     session.SaveChanges();
 

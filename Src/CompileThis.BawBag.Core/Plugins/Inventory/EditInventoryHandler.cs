@@ -44,7 +44,7 @@
                 };
 
             InventoryItem droppedItem;
-            var isDuplicate = context.InventoryManager.AddItem(context.Room, item, out droppedItem);
+            var isDuplicate = context.InventoryManager.AddItem(context.Room, item, out droppedItem, context.TextProcessor);
             if (isDuplicate)
             {
                 return Handled(new MessageResponse

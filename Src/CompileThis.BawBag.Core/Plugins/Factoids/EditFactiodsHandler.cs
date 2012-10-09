@@ -10,10 +10,8 @@
 
     internal class EditFactiodsHandler : MessageHandlerPluginBase
     {
-        private static readonly Regex WhitespaceExpression = new Regex(@"\s+");
-        private static readonly Regex SimplifyTextExpression = new Regex(@"[^\sa-zA-Z0-9']+");
         private static readonly Regex AddFactoidExpression = new Regex(@"^\s*(?<trigger>.*)\s*<(?<type>is|reply|action)>\s*(?<response>.*?)\s*(?:<(?<options>cs)>\s*)*$", RegexOptions.IgnoreCase);
-        private static readonly Regex DisplayFactoidExpression = new Regex(@"^\s*show-factoid\s+(?<trigger>.*?)\s*$", RegexOptions.IgnoreCase);
+        private static readonly Regex ShowFactoidExpression = new Regex(@"^\s*show-factoid\s+(?<trigger>.*?)\s*$", RegexOptions.IgnoreCase);
         private static readonly Regex RemoveFactoidExpression = new Regex(@"^\s*remove-factoid\s+(?<trigger>.*?)\s+(?<index>\d+|\*)$", RegexOptions.IgnoreCase);
 
         public EditFactiodsHandler()
@@ -28,10 +26,10 @@
                 return AddFactiod(addMatch, context);
             }
 
-            var displaytMatch = DisplayFactoidExpression.Match(message.Text);
-            if (displaytMatch.Success)
+            var showtMatch = ShowFactoidExpression.Match(message.Text);
+            if (showtMatch.Success)
             {
-                return DisplayFactiod(displaytMatch, context);
+                return ShowFactiod(showtMatch, context);
             }
 
             var removeMatch = RemoveFactoidExpression.Match(message.Text);
@@ -46,11 +44,6 @@
         public override void Initialize()
         {
             throw new NotImplementedException();
-        }
-
-        private static string ProcessText(string text)
-        {
-            return SimplifyTextExpression.Replace(WhitespaceExpression.Replace(text, " "), "").Trim();
         }
 
         private static FactoidResponseType ToResponseType(string responseTypeText)
@@ -77,7 +70,7 @@
             var responseText = match.Groups["response"].Value;
             var options = match.Groups["options"].Captures.OfType<Capture>().Select(x => x.Value.ToUpperInvariant());
 
-            var responseTrigger = ProcessText(trigger);
+            var responseTrigger = context.TextProcessor.SimplifyText(trigger);
             var factoidTrigger = responseTrigger.ToUpperInvariant();
 
             if (string.IsNullOrWhiteSpace(factoidTrigger))
@@ -92,7 +85,7 @@
                 context.RavenSession.Store(factoid);
             }
 
-            if (factoid.Responses.Any(x => ProcessText(x.Response).ToUpperInvariant() == ProcessText(responseText).ToUpperInvariant()))
+            if (factoid.Responses.Any(x => context.TextProcessor.SimplifiedEquals(x.Response, responseText)))
             {
                 return Handled(new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: I already had it that way!", context.User.Name) });
             }
@@ -117,11 +110,11 @@
 
         }
 
-        private MessageHandlerResult DisplayFactiod(Match match, IPluginContext context)
+        private MessageHandlerResult ShowFactiod(Match match, IPluginContext context)
         {
             var trigger = match.Groups["trigger"].Value;
 
-            var factoidTrigger = ProcessText(trigger).ToUpperInvariant();
+            var factoidTrigger = context.TextProcessor.SimplifyText(trigger).ToUpperInvariant();
 
             if (string.IsNullOrWhiteSpace(factoidTrigger))
             {
@@ -151,7 +144,7 @@
         {
             var trigger = match.Groups["trigger"].Value;
 
-            var factoidTrigger = ProcessText(trigger).ToUpperInvariant();
+            var factoidTrigger = context.TextProcessor.SimplifyText(trigger).ToUpperInvariant();
 
             if (string.IsNullOrWhiteSpace(factoidTrigger))
             {
