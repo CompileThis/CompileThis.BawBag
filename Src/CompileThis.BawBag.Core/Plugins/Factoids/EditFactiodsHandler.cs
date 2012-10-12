@@ -41,11 +41,6 @@
             return NotHandled();
         }
 
-        public override void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
         private static FactoidResponseType ToResponseType(string responseTypeText)
         {
             switch (responseTypeText.ToUpperInvariant())

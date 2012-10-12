@@ -7,7 +7,7 @@
 
     internal class QuestionHandler : MessageHandlerPluginBase
     {
-        private static readonly Regex Matcher = new Regex(@"^(?:is|are|will|can|should) .*\?$");
+        private static readonly Regex Matcher = new Regex(@"^\s*(?:is|are|will|can|should|has|does|did|will|would)\s+.+\?$");
 
         private static readonly string[] PositiveResponses = new[] {"yes", "absolutely", "without doubt"};
         private static readonly string[] NegativeResponses = new[] { "no", "oh fuck no", "no way" };
@@ -38,11 +38,6 @@
             }
 
             return Handled(Message("@{0}: {1}!", context.User.Name, answerText));
-        }
-
-        public override void Initialize()
-        {
-            throw new NotImplementedException();
         }
     }
 }

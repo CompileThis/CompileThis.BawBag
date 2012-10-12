@@ -44,10 +44,5 @@
 
             return Handled(Message(text));
         }
-
-        public override void Initialize()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

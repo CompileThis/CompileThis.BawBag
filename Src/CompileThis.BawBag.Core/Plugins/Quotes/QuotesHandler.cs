@@ -39,11 +39,6 @@
             return NotHandled();
         }
 
-        public override void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
         private MessageHandlerResult AddQuote(string nick, string text, IPluginContext context)
         {
             var quote = new Quote

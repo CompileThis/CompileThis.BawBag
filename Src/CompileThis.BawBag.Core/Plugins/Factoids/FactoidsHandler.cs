@@ -50,10 +50,5 @@
 
             return Handled(response);
         }
-
-        public override void Initialize()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

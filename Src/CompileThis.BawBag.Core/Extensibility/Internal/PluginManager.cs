@@ -48,6 +48,11 @@
                 ).ToList();
 
             _messageHandlers = messageHandlers.OrderBy(x => x.Priority).ThenBy(x => x.Name).ToList();
+
+            foreach (var messageHandler in _messageHandlers)
+            {
+                messageHandler.Initialize();
+            }
         }
     }
 }

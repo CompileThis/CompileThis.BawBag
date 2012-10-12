@@ -40,10 +40,5 @@
 
             return Handled(Message("@{0}: {1}", context.User.Name, options[index]));
         }
-
-        public override void Initialize()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

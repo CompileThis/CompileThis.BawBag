@@ -58,11 +58,6 @@
             return Handled(Action("drops {0} and takes {1}.", droppedItem.Value, item.Value));
         }
 
-        public override void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
         private static Match GetFirstMatch(string text, params Regex[] regexes)
         {
             return regexes.Select(regex => regex.Match(text)).FirstOrDefault(match => match.Success);

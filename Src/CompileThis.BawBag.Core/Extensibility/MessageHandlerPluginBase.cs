@@ -50,6 +50,9 @@
             return ExecuteCore(message, context);
         }
 
+        public override void Initialize()
+        { }
+
         protected abstract MessageHandlerResult ExecuteCore(Message message, IPluginContext context);
 
         protected MessageHandlerResult NotHandled()
