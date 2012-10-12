@@ -9,7 +9,7 @@
 
     internal class ChooseHandler : MessageHandlerPluginBase
     {
-        private static readonly Regex Matcher = new Regex("^(?:choose )?(.*?) (?:or (.*?))+[.?]?$");
+        private static readonly Regex Matcher = new Regex(@"^(?:choose\s+)?(.+?)\s+(?:or\s+(.*?))+[.?]?$");
 
         public ChooseHandler()
             : base("Choose", PluginPriority.Normal, continueProcessing: false, mustBeAddressed: true)

@@ -26,6 +26,7 @@
         private readonly IRandomNumberProvider _randomProvider;
         private readonly IInventoryManager _inventoryManager;
         private readonly ITextProcessor _textProcessor;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         private readonly Regex _botAddressedMatcher;
 
@@ -46,6 +47,7 @@
             _randomProvider = new RandomNumberProvider();
             _inventoryManager = new InventoryManager(5, _store, _randomProvider);
             _textProcessor = new TextProcessor();
+            _dateTimeProvider = new DefaultDateTimeProvider();
 
             _botAddressedMatcher = new Regex("^@?" + _configuration.JabbrNick + "[,: ](.*)$", RegexOptions.IgnoreCase);
         }
@@ -127,7 +129,8 @@
                         RavenSession = session,
                         RandomProvider = _randomProvider,
                         InventoryManager = _inventoryManager,
-                        TextProcessor = _textProcessor
+                        TextProcessor = _textProcessor,
+                        DateTimeProvider = _dateTimeProvider
                     };
 
                 _pluginManager.ProcessMessage(message, context, _client);

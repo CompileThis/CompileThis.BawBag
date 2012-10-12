@@ -14,5 +14,6 @@
         IRandomNumberProvider RandomProvider { get; }
         IInventoryManager InventoryManager { get; }
         ITextProcessor TextProcessor { get; }
+        IDateTimeProvider DateTimeProvider { get; }
     }
 }

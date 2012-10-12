@@ -12,7 +12,7 @@
     {
         private static readonly Regex AddFactoidExpression = new Regex(@"^\s*(?<trigger>.*)\s*<(?<type>is|reply|action)>\s*(?<response>.*?)\s*(?:<(?<options>cs)>\s*)*$", RegexOptions.IgnoreCase);
         private static readonly Regex ShowFactoidExpression = new Regex(@"^\s*show-factoid\s+(?<trigger>.*?)\s*$", RegexOptions.IgnoreCase);
-        private static readonly Regex RemoveFactoidExpression = new Regex(@"^\s*remove-factoid\s+(?<trigger>.*?)\s+(?<index>\d+|\*)$", RegexOptions.IgnoreCase);
+        private static readonly Regex RemoveFactoidExpression = new Regex(@"^\s*remove-factoid\s+(?<trigger>.+?)\s+(?<index>\d+|\*)$", RegexOptions.IgnoreCase);
 
         public EditFactiodsHandler()
             : base("Edit Factoids", PluginPriority.High, continueProcessing: false, mustBeAddressed: true)
@@ -75,7 +75,7 @@
 
             if (string.IsNullOrWhiteSpace(factoidTrigger))
             {
-                return MessageHandlerResult.NotHandled;
+                return NotHandled();
             }
 
             var factoid = context.RavenSession.Query<Factoid>().SingleOrDefault(x => x.Trigger == factoidTrigger);
@@ -87,7 +87,7 @@
 
             if (factoid.Responses.Any(x => context.TextProcessor.SimplifiedEquals(x.Response, responseText)))
             {
-                return Handled(new MessageResponse { ResponseType = MessageHandlerResultResponseType.DefaultMessage, ResponseText = string.Format("@{0}: I already had it that way!", context.User.Name) });
+                return Handled(Message("@{0}: I already had it that way!", context.User.Name));
             }
 
             var response = new FactiodResponse
@@ -100,13 +100,7 @@
 
             factoid.Responses.Add(response);
 
-            var messageResponse = new MessageResponse
-                {
-                    ResponseType = MessageHandlerResultResponseType.DefaultMessage,
-                    ResponseText = string.Format("OK @{0} factoid stored.", context.User.Name)
-                };
-
-            return Handled(messageResponse);
+            return Handled(Message("OK @{0}, factoid stored.", context.User.Name));
 
         }
 
