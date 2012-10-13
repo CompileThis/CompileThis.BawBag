@@ -64,7 +64,7 @@
             IndexCreation.CreateIndexes(Assembly.GetExecutingAssembly(), _store);
 
             _pluginManager = new PluginManager();
-            _pluginManager.Initialize(_configuration.PluginsDirectory);
+            _pluginManager.Initialize(_configuration.PluginsDirectory, _store);
 
             await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
 

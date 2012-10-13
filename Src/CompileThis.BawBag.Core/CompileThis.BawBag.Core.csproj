@@ -94,6 +94,8 @@
     <Compile Include="Plugins\Factoids\Factoid.cs" />
     <Compile Include="Plugins\Factoids\FactoidResponseType.cs" />
     <Compile Include="Plugins\Inventory\EditInventoryHandler.cs" />
+    <Compile Include="Plugins\Karma\ApplyKarmaHandler.cs" />
+    <Compile Include="Plugins\Karma\KarmaHandler.cs" />
     <Compile Include="Plugins\Quotes\QuotesHandler.cs" />
     <Compile Include="Plugins\RandomChoices\ChooseHandler.cs" />
     <Compile Include="Plugins\RandomChoices\RollHandler.cs" />

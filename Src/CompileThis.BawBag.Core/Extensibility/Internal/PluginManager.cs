@@ -6,6 +6,8 @@
     using System.Linq;
     using System.Reflection;
 
+    using Raven.Client;
+
     using CompileThis.BawBag.Jabbr;
 
     internal class PluginManager
@@ -31,7 +33,7 @@
             }
         }
 
-        public void Initialize(string pluginsDirectory)
+        public void Initialize(string pluginsDirectory, IDocumentStore documentStore)
         {
             Guard.NullParameter(pluginsDirectory, () => pluginsDirectory);
 
@@ -51,7 +53,7 @@
 
             foreach (var messageHandler in _messageHandlers)
             {
-                messageHandler.Initialize();
+                messageHandler.Initialize(documentStore);
             }
         }
     }

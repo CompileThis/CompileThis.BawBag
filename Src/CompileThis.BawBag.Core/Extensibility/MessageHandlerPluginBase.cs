@@ -1,5 +1,7 @@
 ﻿namespace CompileThis.BawBag.Extensibility
 {
+    using Raven.Client;
+
     public abstract class MessageHandlerPluginBase : PluginBase, IMessageHandlerPlugin
     {
         private readonly string _name;
@@ -50,7 +52,7 @@
             return ExecuteCore(message, context);
         }
 
-        public override void Initialize()
+        public override void Initialize(IDocumentStore documentStore)
         { }
 
         protected abstract MessageHandlerResult ExecuteCore(Message message, IPluginContext context);
