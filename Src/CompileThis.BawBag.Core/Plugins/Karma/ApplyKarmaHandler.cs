@@ -1,5 +1,6 @@
 ﻿namespace CompileThis.BawBag.Plugins.Karma
 {
+    using System;
     using System.Linq;
     using System.Text.RegularExpressions;
 
@@ -22,6 +23,11 @@
                 var nick = match.Groups["nick"].Value;
                 var amount = match.Groups["quantity"].Length - 1;
 
+                if (string.Equals(nick, context.User.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 var karma = new Karma
                     {
                         CreatedBy = context.User.Name,
@@ -38,6 +44,11 @@
             {
                 var nick = match.Groups["nick"].Value;
                 var amount = -1 * (match.Groups["quantity"].Length - 1);
+
+                if (string.Equals(nick, context.User.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
 
                 var karma = new Karma
                 {
