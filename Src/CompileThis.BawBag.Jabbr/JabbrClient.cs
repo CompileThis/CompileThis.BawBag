@@ -123,15 +123,24 @@
                 {
                     Log.Info("Joining room '{0}'.", summary.Name);
 
-                    var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name);
-                    var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
+                    try
+                    {
+                        var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name);
+                        var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
 
-                    _rooms.Add(room);
+                        _rooms.Add(room);
 
-                    tcs.SetResult(room);
-                    Log.Info("Joined room '{0}'.", room.Name);
-
-                    disposable.Dispose();
+                        tcs.SetResult(room);
+                        Log.Info("Joined room '{0}'.", room.Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.ErrorException("Failed to join room.", ex);
+                    }
+                    finally
+                    {
+                        disposable.Dispose();
+                    }
                 });
 
             disposable.Disposable = joinHandle;
