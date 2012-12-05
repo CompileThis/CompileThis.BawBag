@@ -7,9 +7,19 @@
 
     public class MessageHandlerResult
     {
-        private static readonly MessageHandlerResult NotHandledInstance = new MessageHandlerResult {IsHandled = false, Responses = Enumerable.Empty<MessageResponse>()};
+        private static readonly MessageHandlerResult NotHandledInstance = new MessageHandlerResult
+                                                                              {
+                                                                                  IsHandled = false,
+                                                                                  Responses = Enumerable.Empty<MessageResponse>()
+                                                                              };
+
+        public static MessageHandlerResult NotHandled
+        {
+            get { return NotHandledInstance; }
+        }
 
         public bool IsHandled { get; set; }
+
         public IEnumerable<MessageResponse> Responses { get; set; }
 
         internal async void Execute(IJabbrClient client, Room room)
@@ -39,11 +49,6 @@
                         break;
                 }
             }
-        }
-
-        public static MessageHandlerResult NotHandled
-        {
-            get { return NotHandledInstance; }
         }
     }
 }

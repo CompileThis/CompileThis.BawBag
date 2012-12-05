@@ -1,6 +1,5 @@
 ﻿namespace CompileThis.BawBag.Plugins.RandomChoices
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
@@ -32,7 +31,7 @@
             var countText = match.Groups["count"].Value;
             var sidesText = match.Groups["sides"].Value;
 
-            if (countText == "")
+            if (countText == string.Empty)
             {
                 countText = "1";
             }

@@ -11,7 +11,11 @@
         {
             Map = variables => from variable in variables
                                from value in variable.Values
-                               select new { variable.Name, Value = value };
+                               select new
+                                          {
+                                              variable.Name,
+                                              Value = value
+                                          };
 
             Store(x => x.Value, FieldStorage.Yes);
         }

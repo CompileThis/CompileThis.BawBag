@@ -7,7 +7,7 @@
     using CompileThis.BawBag.Extensibility;
     using CompileThis.BawBag.Jabbr;
 
-    class EditInventoryHandler : MessageHandlerPluginBase
+    internal class EditInventoryHandler : MessageHandlerPluginBase
     {
         public EditInventoryHandler()
             : base("Edit Inventory", PluginPriority.High, continueProcessing: false, mustBeAddressed: false)
@@ -18,17 +18,11 @@
             Match match = null;
             if (message.Type == MessageType.Action)
             {
-                match = GetFirstMatch(message.Text,
-                                      new Regex(@"^\s*puts\s+(?<item>.+?)\s+in\s+@?" + context.BotName + @"\b?.*$",
-                                                RegexOptions.IgnoreCase),
-                                      new Regex(@"^\s*gives\s+@?" + context.BotName + @"\s+(?<item>.+?)\.?\s*$",
-                                                RegexOptions.IgnoreCase),
-                                      new Regex(@"^\s*gives\s+(?<item>.+?)\s+to\s+@?" + context.BotName + @"\b?.*$",
-                                                RegexOptions.IgnoreCase));
-            }
-            else if (message.Type == MessageType.Default)
-            {
-                
+                match = GetFirstMatch(
+                    message.Text,
+                    new Regex(@"^\s*puts\s+(?<item>.+?)\s+in\s+@?" + context.BotName + @"\b?.*$", RegexOptions.IgnoreCase),
+                    new Regex(@"^\s*gives\s+@?" + context.BotName + @"\s+(?<item>.+?)\.?\s*$", RegexOptions.IgnoreCase),
+                    new Regex(@"^\s*gives\s+(?<item>.+?)\s+to\s+@?" + context.BotName + @"\b?.*$", RegexOptions.IgnoreCase));
             }
 
             if (match == null)

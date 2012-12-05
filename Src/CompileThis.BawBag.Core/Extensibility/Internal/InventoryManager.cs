@@ -3,9 +3,9 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Raven.Client;
-
     using CompileThis.BawBag.Jabbr;
+
+    using Raven.Client;
 
     internal class InventoryManager : IInventoryManager
     {

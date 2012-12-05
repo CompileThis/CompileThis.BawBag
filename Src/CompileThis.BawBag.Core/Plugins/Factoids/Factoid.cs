@@ -5,6 +5,7 @@ namespace CompileThis.BawBag.Plugins.Factoids
     internal class Factoid
     {
         public int Id { get; set; }
+
         public string Trigger { get; set; }
 
         public List<FactiodResponse> Responses { get; set; }

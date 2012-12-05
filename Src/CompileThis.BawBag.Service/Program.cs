@@ -1,12 +1,12 @@
 ﻿namespace CompileThis.BawBag.Service
 {
-    using Topshelf;
-
     using CompileThis.BawBag.Service.Runtime;
 
-    class Program
+    using Topshelf;
+
+    internal class Program
     {
-        static void Main()
+        public static void Main()
         {
             HostFactory.Run(hostConfig =>
                 {

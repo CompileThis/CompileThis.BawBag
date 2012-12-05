@@ -1,6 +1,5 @@
 ﻿namespace CompileThis.BawBag.Plugins.RandomChoices
 {
-    using System;
     using System.Text.RegularExpressions;
 
     using CompileThis.BawBag.Extensibility;
@@ -9,7 +8,7 @@
     {
         private static readonly Regex Matcher = new Regex(@"^\s*(?:is|are|will|can|should|has|does|did|will|would)\s+.+\?$");
 
-        private static readonly string[] PositiveResponses = new[] {"yes", "absolutely", "without doubt"};
+        private static readonly string[] PositiveResponses = new[] { "yes", "absolutely", "without doubt" };
         private static readonly string[] NegativeResponses = new[] { "no", "oh fuck no", "no way" };
 
         public QuestionHandler()
@@ -26,13 +25,16 @@
             
             var index = context.RandomProvider.Next(0, 2);
             string answerText;
-            if (index == 0) // Negative
+
+            if (index == 0)
             {
+                // Negative
                 var answerIndex = context.RandomProvider.Next(0, NegativeResponses.Length);
                 answerText = NegativeResponses[answerIndex];
             }
-            else // Positive
+            else
             {
+                // Positive
                 var answerIndex = context.RandomProvider.Next(0, PositiveResponses.Length);
                 answerText = PositiveResponses[answerIndex];
             }

@@ -3,23 +3,18 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    
+
+    using CompileThis.BawBag.Jabbr.ServerModels;
+    using CompileThis.Collections.Generic;
+
     using HtmlAgilityPack;
 
     using NLog;
 
     using SignalR.Client.Hubs;
 
-    using CompileThis.Collections.Generic;
-
-    using CompileThis.BawBag.Jabbr.ServerModels;
-
     public class JabbrClient : IJabbrClient
     {
-        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
-        public event EventHandler<LeftRoomEventArgs> UserLeftRoom;
-        public event EventHandler<AddUserEventArgs> UserJoinedRoom;
-
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly IDateTimeProvider _dateTimeProvider;
@@ -43,6 +38,12 @@
             _rooms = new LookupList<string, Room>(x => x.Name);
             _users = new LookupList<string, User>(x => x.Name);
         }
+
+        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
+
+        public event EventHandler<LeftRoomEventArgs> UserLeftRoom;
+
+        public event EventHandler<AddUserEventArgs> UserJoinedRoom;
 
         public IReadOnlyLookupList<string, Room> Rooms
         {
@@ -71,37 +72,40 @@
             var tcs = new TaskCompletionSource<object>();
             var disposable = new DisposableWrapper();
 
-            var logOnHandle = _chatHub.On<IEnumerable<JabbrRoomSummary>>("logOn", async summaries =>
-                {
-                    Log.Trace("Entered event handler.");
-
-                    foreach (var summary in summaries)
+            var logOnHandle = _chatHub.On<IEnumerable<JabbrRoomSummary>>(
+                "logOn",
+                async summaries =>
                     {
-                        Log.Info("Registering room '{0}'.", summary.Name);
+                        Log.Trace("Entered event handler.");
 
-                        var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name);
-                        jabbrRoom.Private = summary.Private;
-                        var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
+                        foreach (var summary in summaries)
+                        {
+                            Log.Info("Registering room '{0}'.", summary.Name);
 
-                        _rooms.Add(room);
+                            var jabbrRoom =
+                                await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name).ConfigureAwait(false);
+                            jabbrRoom.Private = summary.Private;
+                            var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
 
-                        Log.Info("Registered room '{0}'.", room.Name);
-                    }
+                            _rooms.Add(room);
 
-                    Log.Trace("Completed event handler.");
+                            Log.Info("Registered room '{0}'.", room.Name);
+                        }
 
-                    tcs.SetResult(null);
-                    disposable.Dispose();
-                });
+                        Log.Trace("Completed event handler.");
+
+                        tcs.SetResult(null);
+                        disposable.Dispose();
+                    });
 
             disposable.Disposable = logOnHandle;
-            var joinSuccess = await _chatHub.Invoke<bool>("Join");
+            var joinSuccess = await _chatHub.Invoke<bool>("Join").ConfigureAwait(false);
             if (!joinSuccess)
             {
-                await SetNick(username, password);
+                await SetNick(username, password).ConfigureAwait(false);
             }
 
-            await tcs.Task;
+            await tcs.Task.ConfigureAwait(false);
 
             Log.Info("Connected to JabbR.");
         }
@@ -119,35 +123,38 @@
             var tcs = new TaskCompletionSource<Room>();
             var disposable = new DisposableWrapper();
 
-            var joinHandle = _chatHub.On<JabbrRoomSummary>("joinRoom", async summary =>
-                {
-                    Log.Info("Joining room '{0}'.", summary.Name);
-
-                    try
+            var joinHandle = _chatHub.On<JabbrRoomSummary>(
+                "joinRoom",
+                async summary =>
                     {
-                        var jabbrRoom = await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name);
-                        var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
+                        Log.Info("Joining room '{0}'.", summary.Name);
 
-                        _rooms.Add(room);
+                        try
+                        {
+                            var jabbrRoom =
+                                await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name).ConfigureAwait(false);
+                            var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
 
-                        tcs.SetResult(room);
-                        Log.Info("Joined room '{0}'.", room.Name);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.ErrorException("Failed to join room.", ex);
-                    }
-                    finally
-                    {
-                        disposable.Dispose();
-                    }
-                });
+                            _rooms.Add(room);
+
+                            tcs.SetResult(room);
+                            Log.Info("Joined room '{0}'.", room.Name);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.ErrorException("Failed to join room.", ex);
+                        }
+                        finally
+                        {
+                            disposable.Dispose();
+                        }
+                    });
 
             disposable.Disposable = joinHandle;
 
-            await _chatHub.Invoke("Send", string.Format("/join #{0}", roomName), "");
+            await _chatHub.Invoke("Send", string.Format("/join #{0}", roomName), string.Empty).ConfigureAwait(false);
                 
-            return await tcs.Task;
+            return await tcs.Task.ConfigureAwait(false);
         }
 
         public Task SendDefaultMessage(string text, string roomName)

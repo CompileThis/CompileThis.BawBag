@@ -6,9 +6,9 @@
     using System.Linq;
     using System.Reflection;
 
-    using Raven.Client;
-
     using CompileThis.BawBag.Jabbr;
+
+    using Raven.Client;
 
     internal class PluginManager
     {
@@ -25,7 +25,7 @@
                 var result = messageHandler.Execute(message, context);
                 result.Execute(client, context.Room);
 
-                var continueProcessing = (!result.IsHandled || messageHandler.ContinueProcessing);
+                var continueProcessing = !result.IsHandled || messageHandler.ContinueProcessing;
                 if (!continueProcessing)
                 {
                     break;
@@ -46,8 +46,7 @@
             var messageHandlers = (
                     from handlerType in handlerTypes
                     where typeof(IMessageHandlerPlugin).IsAssignableFrom(handlerType)
-                    select (IMessageHandlerPlugin)Activator.CreateInstance(handlerType)
-                ).ToList();
+                    select (IMessageHandlerPlugin)Activator.CreateInstance(handlerType)).ToList();
 
             _messageHandlers = messageHandlers.OrderBy(x => x.Priority).ThenBy(x => x.Name).ToList();
 

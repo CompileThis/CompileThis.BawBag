@@ -45,7 +45,7 @@
             var user = users.GetValueOrDefault(jabbrUser.Name);
             if (user == null)
             {
-                user = new User {Name = jabbrUser.Name};
+                user = new User { Name = jabbrUser.Name };
                 users.Add(user);
             }
 

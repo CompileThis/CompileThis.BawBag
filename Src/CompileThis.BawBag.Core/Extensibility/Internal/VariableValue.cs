@@ -3,6 +3,7 @@
     internal class VariableValue
     {
         public string Name { get; set; }
+
         public string Value { get; set; }
     }
 }

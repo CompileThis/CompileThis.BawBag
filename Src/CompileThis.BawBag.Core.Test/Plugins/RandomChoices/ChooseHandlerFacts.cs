@@ -1,13 +1,15 @@
 ﻿namespace CompileThis.BawBag.Core.Plugins.RandomChoices
 {
-    using CompileThis.BawBag.Jabbr;
-    using FluentAssertions;
-    using Moq;
-    using Xunit;
-
     using CompileThis.BawBag.Extensibility;
     using CompileThis.BawBag.Extensibility.Internal;
+    using CompileThis.BawBag.Jabbr;
     using CompileThis.BawBag.Plugins.RandomChoices;
+
+    using FluentAssertions;
+
+    using Moq;
+
+    using Xunit;
 
     public class ChooseHandlerFacts
     {

@@ -1,6 +1,5 @@
 ﻿namespace CompileThis.BawBag.Plugins.Wordplay
 {
-    using System;
     using System.Text.RegularExpressions;
 
     using CompileThis.BawBag.Extensibility;

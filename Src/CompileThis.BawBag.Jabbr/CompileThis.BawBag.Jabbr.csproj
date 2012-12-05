@@ -71,6 +71,7 @@
     <Compile Include="IDateTimeProvider.cs" />
     <Compile Include="IJabbrClient.cs" />
     <Compile Include="JabbrClient.cs" />
+    <Compile Include="JabbrEventContext.cs" />
     <Compile Include="ReceivedMessage.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="Room.cs" />

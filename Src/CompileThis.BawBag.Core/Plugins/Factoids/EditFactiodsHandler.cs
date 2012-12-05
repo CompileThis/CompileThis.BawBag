@@ -96,7 +96,6 @@
             factoid.Responses.Add(response);
 
             return Handled(Message("OK @{0}, factoid stored.", context.User.Name));
-
         }
 
         private MessageHandlerResult ShowFactiod(Match match, IPluginContext context)

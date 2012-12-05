@@ -4,16 +4,16 @@
     using System.Reflection;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
-    
+
+    using CompileThis.BawBag.Extensibility;
+    using CompileThis.BawBag.Extensibility.Internal;
+    using CompileThis.BawBag.Jabbr;
+
     using NLog;
 
     using Raven.Client;
     using Raven.Client.Document;
     using Raven.Client.Indexes;
-
-    using CompileThis.BawBag.Jabbr;
-    using CompileThis.BawBag.Extensibility;
-    using CompileThis.BawBag.Extensibility.Internal;
 
     public class BawBagBot
     {
@@ -113,7 +113,6 @@
 
             using (var session = _store.OpenSession())
             {
-
                 var message = new Message
                     {
                         Text = text,

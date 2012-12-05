@@ -1,6 +1,5 @@
 ﻿namespace CompileThis.BawBag.Plugins.Quotes
 {
-    using System;
     using System.Linq;
     using System.Text.RegularExpressions;
 
@@ -77,13 +76,5 @@
 
             return Handled(Message("{0}: {1}", quote.Nick, quote.Text));
         }
-    }
-
-    internal class Quote
-    {
-        public string CreatedBy { get; set; }
-        public DateTimeOffset CreatedOn { get; set; }
-        public string Nick { get; set; }
-        public string Text { get; set; }
     }
 }

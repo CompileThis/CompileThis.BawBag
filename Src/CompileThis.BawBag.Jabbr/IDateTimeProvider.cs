@@ -5,8 +5,11 @@ namespace CompileThis.BawBag.Jabbr
     public interface IDateTimeProvider
     {
         DateTimeOffset GetNow();
+
         DateTimeOffset GetUtcNow();
+
         DateTime GetToday();
+
         TimeSpan GetTimeOfDay();
     }
 }

@@ -2,13 +2,13 @@
 {
     using System.Collections.Generic;
 
+    using CompileThis.BawBag.Extensibility.Internal;
+
     using FluentAssertions;
 
     using Raven.Client.Indexes;
 
     using Xunit;
-
-    using CompileThis.BawBag.Extensibility.Internal;
 
     public class VariableManagerFacts
     {
