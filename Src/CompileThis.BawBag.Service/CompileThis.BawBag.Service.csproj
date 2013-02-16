@@ -37,15 +37,8 @@
     <SlowCheetahTargets Condition=" '$(SlowCheetahTargets)'=='' ">$(LOCALAPPDATA)\Microsoft\MSBuild\SlowCheetah\v1\SlowCheetah.Transforms.targets</SlowCheetahTargets>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Newtonsoft.Json.4.5.10\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="NLog">
       <HintPath>..\..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="SignalR.Client">
-      <HintPath>..\..\packages\SignalR.Client.0.5.3\lib\net40\SignalR.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,13 +47,13 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Topshelf, Version=3.0.105.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Topshelf, Version=3.1.106.0, Culture=neutral, PublicKeyToken=b800c4cfcdeea87b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Topshelf.3.0.2\lib\net40-full\Topshelf.dll</HintPath>
+      <HintPath>..\..\packages\TopShelf.3.1.0\lib\net40-full\Topshelf.dll</HintPath>
     </Reference>
-    <Reference Include="Topshelf.NLog, Version=3.0.105.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Topshelf.NLog, Version=3.1.106.0, Culture=neutral, PublicKeyToken=b800c4cfcdeea87b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Topshelf.NLog.3.0.2\lib\net40-full\Topshelf.NLog.dll</HintPath>
+      <HintPath>..\..\packages\Topshelf.NLog.3.1.0\lib\net40-full\Topshelf.NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

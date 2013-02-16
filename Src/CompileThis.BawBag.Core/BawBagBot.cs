@@ -1,5 +1,6 @@
 ﻿namespace CompileThis.BawBag
 {
+    using System;
     using System.Net;
     using System.Reflection;
     using System.Text.RegularExpressions;
@@ -21,7 +22,7 @@
 
         private readonly BawBagBotConfiguration _configuration;
         
-        private readonly IJabbrClient _client;
+        private IJabbrClient _client;
         private readonly IDocumentStore _store;
         private readonly IRandomNumberProvider _randomProvider;
         private readonly IInventoryManager _inventoryManager;
@@ -42,7 +43,6 @@
 
             _configuration = configuration;
 
-            _client = new JabbrClient(configuration.JabbrUrl, new DefaultDateTimeProvider());
             _store = new DocumentStore { Url = configuration.RavenUrl, DefaultDatabase = configuration.RavenDatabase };
             _randomProvider = new RandomNumberProvider();
             _inventoryManager = new InventoryManager(5, _store, _randomProvider);
@@ -55,9 +55,6 @@
         public async Task Start()
         {
             Log.Info("Starting BawBag");
-
-            _client.MessageReceived += MessageReceived;
-
             Log.Info("Connecting to '{0}' as '{1}'.", _configuration.JabbrUrl, _configuration.JabbrNick);
 
             _store.Initialize();
@@ -66,7 +63,10 @@
             _pluginManager = new PluginManager();
             _pluginManager.Initialize(_configuration.PluginsDirectory, _store);
 
-            await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
+            _client = await JabbrManager.Connect(new Uri(_configuration.JabbrUrl), _configuration.JabbrNick, _configuration.JabbrPassword);
+            _client.MessageReceived += MessageReceived;
+
+            await _client.Connect();
 
             Log.Info("Started BawBag");
 

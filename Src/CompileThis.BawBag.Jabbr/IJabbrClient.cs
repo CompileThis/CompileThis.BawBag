@@ -17,7 +17,7 @@ namespace CompileThis.BawBag.Jabbr
 
         IReadOnlyLookupList<string, User> Users { get; }
 
-        Task Connect(string username, string password);
+        Task Connect();
 
         Task Disconnect();
 

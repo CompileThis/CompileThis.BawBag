@@ -2,6 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Net;
+    using System.Net.Http;
+    using System.Security;
     using System.Threading.Tasks;
 
     using CompileThis.BawBag.Jabbr.ServerModels;
@@ -9,11 +12,57 @@
 
     using HtmlAgilityPack;
 
+    using Microsoft.AspNet.SignalR.Client.Hubs;
+
     using NLog;
 
-    using SignalR.Client.Hubs;
+    public static class JabbrManager
+    {
+        private const string AuthEndpoint = "account/login";
+        private const string JabbrCookieName = "jabbr.userToken";
+        private const string UserNameParamName = "username";
+        private const string PasswordParamName = "password";
 
-    public class JabbrClient : IJabbrClient
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+        public static async Task<IJabbrClient> Connect(Uri url, string username, string password)
+        {
+            return await Connect(url, username, password, new DefaultDateTimeProvider());
+        }
+
+        public static async Task<IJabbrClient> Connect(Uri url, string userName, string password, IDateTimeProvider dateTimeProvider)
+        {
+            var authenticationUrl = new Uri(url, AuthEndpoint);
+
+            var cookies = new CookieContainer();
+            var httpHandler = new HttpClientHandler() { UseCookies = true, CookieContainer = cookies };
+
+            var formContent =
+                new FormUrlEncodedContent(
+                    new[]
+                        {
+                            new KeyValuePair<string, string>(UserNameParamName, userName),
+                            new KeyValuePair<string, string>(PasswordParamName, password)
+                        });
+            
+            var client = new HttpClient(httpHandler);
+
+            var response = await client.PostAsync(authenticationUrl, formContent);
+            response.EnsureSuccessStatusCode();
+
+            var cookie = cookies.GetCookies(url);
+            if (cookie == null || cookie[JabbrCookieName] == null)
+            {
+                throw new SecurityException("Didn't get a cookie from JabbR! Ensure your User Name/Password are correct");
+            }
+
+            var hub = new HubConnection(url.AbsoluteUri) { CookieContainer = cookies };
+
+            return new JabbrClient(hub, dateTimeProvider);
+        }
+    }
+
+    internal class JabbrClient : IJabbrClient
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -23,17 +72,17 @@
         private readonly IHubProxy _chatHub;
 
         private readonly LookupList<string, Room> _rooms;
-        private readonly LookupList<string, User> _users; 
+        private readonly LookupList<string, User> _users;
 
-        public JabbrClient(string url, IDateTimeProvider dateTimeProvider)
+        public JabbrClient(HubConnection connection, IDateTimeProvider dateTimeProvider)
         {
-            Guard.NullParameter(url, () => url);
+            Guard.NullParameter(connection, () => connection);
             Guard.NullParameter(dateTimeProvider, () => dateTimeProvider);
 
             _dateTimeProvider = dateTimeProvider;
 
-            _connection = new HubConnection(url);
-            _chatHub = _connection.CreateProxy("chat");
+            _connection = connection;
+            _chatHub = _connection.CreateHubProxy("chat");
 
             _rooms = new LookupList<string, Room>(x => x.Name);
             _users = new LookupList<string, User>(x => x.Name);
@@ -55,11 +104,8 @@
             get { return _users; }
         }
 
-        public async Task Connect(string username, string password)
+        public async Task Connect()
         {
-            Guard.NullParameter(username, () => username);
-            Guard.NullParameter(password, () => password);
-
             Log.Info("Connecting to JabbR.");
 
             _chatHub.On<JabbrMessage, string>("addMessage", HandleAddMessage);
@@ -68,43 +114,38 @@
             _chatHub.On<JabbrUser, string>("leave", UserLeftHandler);
 
             await _connection.Start();
-
+            Log.Info("Started");
             var tcs = new TaskCompletionSource<object>();
             var disposable = new DisposableWrapper();
 
             var logOnHandle = _chatHub.On<IEnumerable<JabbrRoomSummary>>(
                 "logOn",
                 async summaries =>
+                {
+                    Log.Trace("Entered event handler.");
+
+                    foreach (var summary in summaries)
                     {
-                        Log.Trace("Entered event handler.");
+                        Log.Info("Registering room '{0}'.", summary.Name);
 
-                        foreach (var summary in summaries)
-                        {
-                            Log.Info("Registering room '{0}'.", summary.Name);
+                        var jabbrRoom =
+                            await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name).ConfigureAwait(false);
+                        jabbrRoom.Private = summary.Private;
+                        var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
 
-                            var jabbrRoom =
-                                await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name).ConfigureAwait(false);
-                            jabbrRoom.Private = summary.Private;
-                            var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
+                        _rooms.Add(room);
 
-                            _rooms.Add(room);
+                        Log.Info("Registered room '{0}'.", room.Name);
+                    }
 
-                            Log.Info("Registered room '{0}'.", room.Name);
-                        }
+                    Log.Trace("Completed event handler.");
 
-                        Log.Trace("Completed event handler.");
-
-                        tcs.SetResult(null);
-                        disposable.Dispose();
-                    });
+                    tcs.SetResult(null);
+                    disposable.Dispose();
+                });
 
             disposable.Disposable = logOnHandle;
-            var joinSuccess = await _chatHub.Invoke<bool>("Join").ConfigureAwait(false);
-            if (!joinSuccess)
-            {
-                await SetNick(username, password).ConfigureAwait(false);
-            }
-
+            await _chatHub.Invoke("Join").ConfigureAwait(false);
             await tcs.Task.ConfigureAwait(false);
 
             Log.Info("Connected to JabbR.");
@@ -126,34 +167,34 @@
             var joinHandle = _chatHub.On<JabbrRoomSummary>(
                 "joinRoom",
                 async summary =>
+                {
+                    Log.Info("Joining room '{0}'.", summary.Name);
+
+                    try
                     {
-                        Log.Info("Joining room '{0}'.", summary.Name);
+                        var jabbrRoom =
+                            await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name).ConfigureAwait(false);
+                        var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
 
-                        try
-                        {
-                            var jabbrRoom =
-                                await _chatHub.Invoke<JabbrRoom>("GetRoomInfo", summary.Name).ConfigureAwait(false);
-                            var room = ServerModelConverter.ToRoom(jabbrRoom, this, _users);
+                        _rooms.Add(room);
 
-                            _rooms.Add(room);
-
-                            tcs.SetResult(room);
-                            Log.Info("Joined room '{0}'.", room.Name);
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.ErrorException("Failed to join room.", ex);
-                        }
-                        finally
-                        {
-                            disposable.Dispose();
-                        }
-                    });
+                        tcs.SetResult(room);
+                        Log.Info("Joined room '{0}'.", room.Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.ErrorException("Failed to join room.", ex);
+                    }
+                    finally
+                    {
+                        disposable.Dispose();
+                    }
+                });
 
             disposable.Disposable = joinHandle;
 
             await _chatHub.Invoke("Send", string.Format("/join #{0}", roomName), string.Empty).ConfigureAwait(false);
-                
+
             return await tcs.Task.ConfigureAwait(false);
         }
 
@@ -217,33 +258,33 @@
         private void HandleAddMessage(JabbrMessage jabbrMessage, string roomName)
         {
             Task.Factory.StartNew(() =>
-                {
-                    var room = _rooms[roomName];
-                    var user = ServerModelConverter.ToUser(jabbrMessage.User, _users);
+            {
+                var room = _rooms[roomName];
+                var user = ServerModelConverter.ToUser(jabbrMessage.User, _users);
 
-                    var message = new ReceivedMessage(MessageType.Default, CleanMessage(jabbrMessage.Content), jabbrMessage.Id, jabbrMessage.When);
-                    var context = new JabbrEventContext(room, user);
+                var message = new ReceivedMessage(MessageType.Default, CleanMessage(jabbrMessage.Content), jabbrMessage.Id, jabbrMessage.When);
+                var context = new JabbrEventContext(room, user);
 
-                    OnMessageReceived(new MessageReceivedEventArgs(message, context));
-                });
+                OnMessageReceived(new MessageReceivedEventArgs(message, context));
+            });
         }
 
         private void UserJoinedHandler(JabbrUser jabbrUser, string roomName, bool isOwner)
         {
             Task.Factory.StartNew(() =>
+            {
+                var room = _rooms[roomName];
+                var user = ServerModelConverter.ToUser(jabbrUser, _users);
+
+                room.AddUser(user);
+
+                if (isOwner)
                 {
-                    var room = _rooms[roomName];
-                    var user = ServerModelConverter.ToUser(jabbrUser, _users);
+                    room.AddOwner(user);
+                }
 
-                    room.AddUser(user);
-
-                    if (isOwner)
-                    {
-                        room.AddOwner(user);
-                    }
-
-                    OnUserJoinedRoom(new AddUserEventArgs(room, user));
-                });
+                OnUserJoinedRoom(new AddUserEventArgs(room, user));
+            });
         }
 
         private void UserLeftHandler(JabbrUser jabbrUser, string roomName)
