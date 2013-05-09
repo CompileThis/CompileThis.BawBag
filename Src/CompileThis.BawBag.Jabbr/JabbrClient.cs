@@ -16,7 +16,7 @@
 
     using NLog;
 
-    public static class JabbrManager
+    public class JabbrClient : IJabbrClient
     {
         private const string AuthEndpoint = "account/login";
         private const string JabbrCookieName = "jabbr.userToken";
@@ -25,63 +25,28 @@
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public static async Task<IJabbrClient> Connect(Uri url, string username, string password)
-        {
-            return await Connect(url, username, password, new DefaultDateTimeProvider());
-        }
-
-        public static async Task<IJabbrClient> Connect(Uri url, string userName, string password, IDateTimeProvider dateTimeProvider)
-        {
-            var authenticationUrl = new Uri(url, AuthEndpoint);
-
-            var cookies = new CookieContainer();
-            var httpHandler = new HttpClientHandler() { UseCookies = true, CookieContainer = cookies };
-
-            var formContent =
-                new FormUrlEncodedContent(
-                    new[]
-                        {
-                            new KeyValuePair<string, string>(UserNameParamName, userName),
-                            new KeyValuePair<string, string>(PasswordParamName, password)
-                        });
-            
-            var client = new HttpClient(httpHandler);
-
-            var response = await client.PostAsync(authenticationUrl, formContent);
-            response.EnsureSuccessStatusCode();
-
-            var cookie = cookies.GetCookies(url);
-            if (cookie == null || cookie[JabbrCookieName] == null)
-            {
-                throw new SecurityException("Didn't get a cookie from JabbR! Ensure your User Name/Password are correct");
-            }
-
-            var hub = new HubConnection(url.AbsoluteUri) { CookieContainer = cookies };
-
-            return new JabbrClient(hub, dateTimeProvider);
-        }
-    }
-
-    internal class JabbrClient : IJabbrClient
-    {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private readonly IDateTimeProvider _dateTimeProvider;
 
+        private readonly Uri _url;
         private readonly HubConnection _connection;
         private readonly IHubProxy _chatHub;
 
         private readonly LookupList<string, Room> _rooms;
         private readonly LookupList<string, User> _users;
 
-        public JabbrClient(HubConnection connection, IDateTimeProvider dateTimeProvider)
+        public JabbrClient(Uri url)
+            : this(url, new DefaultDateTimeProvider())
+        { }
+
+        public JabbrClient(Uri url, IDateTimeProvider dateTimeProvider)
         {
-            Guard.NullParameter(connection, () => connection);
+            Guard.NullParameter(url, () => url);
             Guard.NullParameter(dateTimeProvider, () => dateTimeProvider);
 
+            _url = url;
+            _connection = new HubConnection(url.AbsoluteUri);
             _dateTimeProvider = dateTimeProvider;
 
-            _connection = connection;
             _chatHub = _connection.CreateHubProxy("chat");
 
             _rooms = new LookupList<string, Room>(x => x.Name);
@@ -104,9 +69,14 @@
             get { return _users; }
         }
 
-        public async Task Connect()
+        public async Task Connect(string userName, string password)
         {
             Log.Info("Connecting to JabbR.");
+
+            Log.Debug("Authenticating");
+
+            await AuthenticateConnection(_connection, _url, userName, password);
+            Log.Debug("Authenticated");
 
             _chatHub.On<JabbrMessage, string>("addMessage", HandleAddMessage);
             _chatHub.On<string, string, string>("sendMeMessage", HandleAddAction);
@@ -215,17 +185,7 @@
 
         public Task LeaveRoom(string room)
         {
-            return _chatHub.Invoke("Send", string.Format("/leave #{0}", room), "");
-        }
-
-        private Task SetNick(string username, string password)
-        {
-            return _chatHub.Invoke("Send", String.Format("/nick {0} {1}", username, password), "");
-        }
-
-        private Task LogOut()
-        {
-            return _chatHub.Invoke("Send", "/logout", "");
+            return _chatHub.Invoke("Send", string.Format("/leave #{0}", room), string.Empty);
         }
 
         protected virtual void OnMessageReceived(MessageReceivedEventArgs e)
@@ -253,6 +213,48 @@
             {
                 handler(this, e);
             }
+        }
+
+        private static async Task AuthenticateConnection(IHubConnection connection, Uri url, string userName, string password)
+        {
+            var authenticationUrl = new Uri(url, AuthEndpoint);
+
+            var cookieContainer = new CookieContainer();
+            var httpHandler = new HttpClientHandler { UseCookies = true, CookieContainer = cookieContainer };
+
+            var formContent =
+                new FormUrlEncodedContent(
+                    new[]
+                        {
+                            new KeyValuePair<string, string>(UserNameParamName, userName),
+                            new KeyValuePair<string, string>(PasswordParamName, password)
+                        });
+
+            var client = new HttpClient(httpHandler);
+
+            var response = await client.PostAsync(authenticationUrl, formContent);
+            response.EnsureSuccessStatusCode();
+
+            var cookies = cookieContainer.GetCookies(url);
+            if (cookies == null || cookies[JabbrCookieName] == null)
+            {
+                throw new SecurityException("Didn't get a cookie from JabbR! Ensure your User Name/Password are correct");
+            }
+
+            connection.CookieContainer = cookieContainer;
+        }
+
+        private static string CleanMessage(string message)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(message);
+
+            return doc.DocumentNode.InnerText;
+        }
+
+        private Task LogOut()
+        {
+            return _chatHub.Invoke("Send", "/logout", string.Empty);
         }
 
         private void HandleAddMessage(JabbrMessage jabbrMessage, string roomName)
@@ -317,14 +319,6 @@
 
                 OnMessageReceived(new MessageReceivedEventArgs(message, context));
             });
-        }
-
-        private static string CleanMessage(string message)
-        {
-            var doc = new HtmlDocument();
-            doc.LoadHtml(message);
-
-            return doc.DocumentNode.InnerText;
         }
     }
 }

@@ -63,10 +63,10 @@
             _pluginManager = new PluginManager();
             _pluginManager.Initialize(_configuration.PluginsDirectory, _store);
 
-            _client = await JabbrManager.Connect(new Uri(_configuration.JabbrUrl), _configuration.JabbrNick, _configuration.JabbrPassword);
+            _client = new JabbrClient(new Uri(_configuration.JabbrUrl));
             _client.MessageReceived += MessageReceived;
 
-            await _client.Connect();
+            await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
 
             Log.Info("Started BawBag");
 
