@@ -43,7 +43,7 @@
 
             _configuration = configuration;
 
-            _store = new DocumentStore { Url = configuration.RavenUrl, DefaultDatabase = configuration.RavenDatabase };
+            _store = new DocumentStore { ConnectionStringName = "RavenDB" };
             _randomProvider = new RandomNumberProvider();
             _inventoryManager = new InventoryManager(5, _store, _randomProvider);
             _textProcessor = new TextProcessor();
