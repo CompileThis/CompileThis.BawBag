@@ -246,10 +246,13 @@
 
         private static string CleanMessage(string message)
         {
+            return message;
+            /* I don't know why I did this
             var doc = new HtmlDocument();
             doc.LoadHtml(message);
 
             return doc.DocumentNode.InnerText;
+            */
         }
 
         private Task LogOut()
