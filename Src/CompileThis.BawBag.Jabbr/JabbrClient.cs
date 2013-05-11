@@ -34,6 +34,9 @@
         private readonly LookupList<string, Room> _rooms;
         private readonly LookupList<string, User> _users;
 
+        private string _userName;
+        private string _password;
+
         public JabbrClient(Uri url)
             : this(url, new DefaultDateTimeProvider())
         { }
@@ -47,10 +50,18 @@
             _connection = new HubConnection(url.AbsoluteUri);
             _dateTimeProvider = dateTimeProvider;
 
+            _connection.Error += ConnectionOnError;
+
             _chatHub = _connection.CreateHubProxy("chat");
 
             _rooms = new LookupList<string, Room>(x => x.Name);
             _users = new LookupList<string, User>(x => x.Name);
+        }
+
+        private async void ConnectionOnError(Exception exception)
+        {
+            await this.Disconnect();
+            this.Connect(_userName, _password);
         }
 
         public event EventHandler<MessageReceivedEventArgs> MessageReceived;
@@ -72,6 +83,9 @@
         public async Task Connect(string userName, string password)
         {
             Log.Info("Connecting to JabbR.");
+
+            _userName = userName;
+            _password = password;
 
             Log.Debug("Authenticating");
 
