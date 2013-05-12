@@ -29,11 +29,11 @@
 
         private readonly Uri _url;
         private readonly HubConnection _connection;
-        private readonly IHubProxy _chatHub;
 
         private readonly LookupList<string, Room> _rooms;
         private readonly LookupList<string, User> _users;
 
+        private IHubProxy _chatHub;
         private string _userName;
         private string _password;
 
@@ -52,16 +52,8 @@
 
             _connection.Error += ConnectionOnError;
 
-            _chatHub = _connection.CreateHubProxy("chat");
-
             _rooms = new LookupList<string, Room>(x => x.Name);
             _users = new LookupList<string, User>(x => x.Name);
-        }
-
-        private async void ConnectionOnError(Exception exception)
-        {
-            await this.Disconnect();
-            this.Connect(_userName, _password);
         }
 
         public event EventHandler<MessageReceivedEventArgs> MessageReceived;
@@ -86,6 +78,7 @@
 
             _userName = userName;
             _password = password;
+            _chatHub = _connection.CreateHubProxy("chat");
 
             Log.Debug("Authenticating");
 
@@ -138,7 +131,8 @@
         public async Task Disconnect()
         {
             await LogOut();
-            _connection.Stop();
+            _connection.Disconnect();
+            _chatHub = null;
         }
 
         public async Task<Room> JoinRoom(string roomName)
@@ -286,6 +280,12 @@
 
                 OnMessageReceived(new MessageReceivedEventArgs(message, context));
             });
+        }
+
+        private async void ConnectionOnError(Exception exception)
+        {
+            await this.Disconnect();
+            await this.Connect(_userName, _password);
         }
 
         private void UserJoinedHandler(JabbrUser jabbrUser, string roomName, bool isOwner)

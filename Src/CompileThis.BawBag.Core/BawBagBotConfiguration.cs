@@ -15,10 +15,6 @@
 
         public string[] Admins { get; set; }
 
-        public string RavenUrl { get; set; }
-
-        public string RavenDatabase { get; set; }
-
         public string PluginsDirectory { get; set; }
 
         public static BawBagBotConfiguration FromConfigFile()
@@ -30,8 +26,6 @@
                     JabbrPassword = ConfigurationManager.AppSettings["BawBag/JabbrPassword"],
                     Rooms = ConfigurationManager.AppSettings["BawBag/Rooms"].Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries),
                     Admins = ConfigurationManager.AppSettings["BawBag/Admins"].Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries),
-                    RavenUrl = ConfigurationManager.AppSettings["BawBag/RavenUrl"],
-                    RavenDatabase = ConfigurationManager.AppSettings["BawBag/RavenDatabase"],
                     PluginsDirectory = ConfigurationManager.AppSettings["BawBag/PluginsDirectory"]
                 };
         }
