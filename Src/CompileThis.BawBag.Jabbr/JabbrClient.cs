@@ -284,6 +284,7 @@
 
         private async void ConnectionOnError(Exception exception)
         {
+            Log.InfoException("Connection error", exception);
             await this.Disconnect();
             await this.Connect(_userName, _password);
         }
