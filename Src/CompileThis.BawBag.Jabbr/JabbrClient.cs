@@ -30,6 +30,8 @@
         private readonly Uri _url;
         private readonly HubConnection _connection;
 
+        private readonly IList<IDisposable> _subscriptionHandles; 
+
         private readonly LookupList<string, Room> _rooms;
         private readonly LookupList<string, User> _users;
 
@@ -49,6 +51,7 @@
             _url = url;
             _connection = new HubConnection(url.AbsoluteUri);
             _dateTimeProvider = dateTimeProvider;
+            _subscriptionHandles = new List<IDisposable>();
 
             _connection.Error += ConnectionOnError;
 
@@ -85,10 +88,10 @@
             await AuthenticateConnection(_connection, _url, userName, password);
             Log.Debug("Authenticated");
 
-            _chatHub.On<JabbrMessage, string>("addMessage", HandleAddMessage);
-            _chatHub.On<string, string, string>("sendMeMessage", HandleAddAction);
-            _chatHub.On<JabbrUser, string, bool>("addUser", UserJoinedHandler);
-            _chatHub.On<JabbrUser, string>("leave", UserLeftHandler);
+            _subscriptionHandles.Add(_chatHub.On<JabbrMessage, string>("addMessage", HandleAddMessage));
+            _subscriptionHandles.Add(_chatHub.On<string, string, string>("sendMeMessage", HandleAddAction));
+            _subscriptionHandles.Add(_chatHub.On<JabbrUser, string, bool>("addUser", UserJoinedHandler));
+            _subscriptionHandles.Add(_chatHub.On<JabbrUser, string>("leave", UserLeftHandler));
 
             await _connection.Start();
             Log.Info("Started");
@@ -285,6 +288,12 @@
         private async void ConnectionOnError(Exception exception)
         {
             Log.InfoException("Connection error", exception);
+
+            foreach (var subscriptionHandle in _subscriptionHandles)
+            {
+                subscriptionHandle.Dispose();
+            }
+
             await this.Disconnect();
             await this.Connect(_userName, _password);
         }
