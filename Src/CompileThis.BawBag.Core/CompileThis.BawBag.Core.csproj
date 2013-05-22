@@ -35,13 +35,8 @@
     <Reference Include="CompileThis.Core">
       <HintPath>..\..\packages\CompileThis.Core.0.1.0.2\lib\net45\CompileThis.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.SignalR.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Microsoft.AspNet.SignalR.Client.1.0.1\lib\net45\Microsoft.AspNet.SignalR.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="JabbR.Client">
+      <HintPath>..\..\Lib\JabbR.Client\JabbR.Client.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
       <HintPath>..\..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
@@ -93,6 +88,7 @@
     <Compile Include="Extensibility\Internal\VariableValue.cs" />
     <Compile Include="Extensibility\Internal\PluginResponseValueProvider.cs" />
     <Compile Include="Extensibility\Internal\TextProcessor.cs" />
+    <Compile Include="IDateTimeProvider.cs" />
     <Compile Include="Plugins\Factoids\FactiodResponse.cs" />
     <Compile Include="Plugins\Factoids\Factoid.cs" />
     <Compile Include="Plugins\Factoids\FactoidResponseType.cs" />
@@ -120,12 +116,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <ProjectReference Include="..\CompileThis.BawBag.Jabbr\CompileThis.BawBag.Jabbr.csproj">
-      <Project>{51c61bb4-94ed-48b5-ae36-9da30a3a9f5e}</Project>
-      <Name>CompileThis.BawBag.Jabbr</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

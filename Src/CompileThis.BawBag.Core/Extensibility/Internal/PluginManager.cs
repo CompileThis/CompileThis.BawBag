@@ -6,15 +6,14 @@
     using System.Linq;
     using System.Reflection;
 
-    using CompileThis.BawBag.Jabbr;
-
     using Raven.Client;
+    using JabbR.Client;
 
     internal class PluginManager
     {
         private IEnumerable<IMessageHandlerPlugin> _messageHandlers;
 
-        public void ProcessMessage(Message message, IPluginContext context, IJabbrClient client)
+        public void ProcessMessage(Message message, IPluginContext context, IJabbRClient client)
         {
             Guard.NullParameter(message, () => message);
             Guard.NullParameter(context, () => context);

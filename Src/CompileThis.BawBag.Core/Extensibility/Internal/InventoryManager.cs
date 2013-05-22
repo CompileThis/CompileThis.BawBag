@@ -3,9 +3,8 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using CompileThis.BawBag.Jabbr;
-
     using Raven.Client;
+    using JabbR.Client.Models;
 
     internal class InventoryManager : IInventoryManager
     {

@@ -1,8 +1,7 @@
 ﻿namespace CompileThis.BawBag.Extensibility
 {
+    using JabbR.Client.Models;
     using System.Collections.Generic;
-
-    using CompileThis.BawBag.Jabbr;
 
     public interface IInventoryManager
     {

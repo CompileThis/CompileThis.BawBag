@@ -6,9 +6,8 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
-    using CompileThis.BawBag.Extensibility;
-    using CompileThis.BawBag.Extensibility.Internal;
-    using CompileThis.BawBag.Jabbr;
+    using JabbR.Client;
+    using JabbRMessage = JabbR.Client.Models.Message;
 
     using NLog;
 
@@ -16,19 +15,23 @@
     using Raven.Client.Document;
     using Raven.Client.Indexes;
 
+    using CompileThis.BawBag.Extensibility;
+    using CompileThis.BawBag.Extensibility.Internal;
+    using System.Collections.Generic;   
+
     public class BawBagBot
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly BawBagBotConfiguration _configuration;
         
-        private IJabbrClient _client;
+        private IJabbRClient _client;
         private readonly IDocumentStore _store;
         private readonly IRandomNumberProvider _randomProvider;
         private readonly IInventoryManager _inventoryManager;
         private readonly ITextProcessor _textProcessor;
         private readonly IDateTimeProvider _dateTimeProvider;
-
+        private readonly IDictionary<string, JabbR.Client.Models.Room> _rooms;
         private readonly Regex _botAddressedMatcher;
 
         private PluginManager _pluginManager;
@@ -49,6 +52,7 @@
             _textProcessor = new TextProcessor();
             _dateTimeProvider = new DefaultDateTimeProvider();
 
+            _rooms = new Dictionary<string, JabbR.Client.Models.Room>();
             _botAddressedMatcher = new Regex("^@?" + _configuration.JabbrNick + "[,: ](.*)$", RegexOptions.IgnoreCase);
         }
 
@@ -63,19 +67,28 @@
             _pluginManager = new PluginManager();
             _pluginManager.Initialize(_configuration.PluginsDirectory, _store);
 
-            _client = new JabbrClient(new Uri(_configuration.JabbrUrl));
+            _client = new JabbRClient(_configuration.JabbrUrl);
             _client.MessageReceived += MessageReceived;
 
-            await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
+            var logOnInfo = await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
+            foreach (var room in logOnInfo.Rooms)
+            {
+                _rooms[room.Name] = room;
+            }
 
             Log.Info("Started BawBag");
 
             foreach (var roomName in _configuration.Rooms)
             {
-                if (!_client.Rooms.Contains(roomName))
+                if (_rooms.ContainsKey(roomName))
                 {
-                    await _client.JoinRoom(roomName);
+                    continue;
                 }
+
+                await _client.JoinRoom(roomName);
+                var room = await _client.GetRoomInfo(roomName);
+
+                _rooms[roomName] = room;
             }
         }
 
@@ -83,25 +96,25 @@
         {
             _client.MessageReceived -= MessageReceived;
 
-            foreach (var room in _client.Rooms)
+            foreach (var room in _configuration.Rooms)
             {
-                await _client.LeaveRoom(room.Name);
+                await _client.LeaveRoom(room);
             }
 
-            await _client.Disconnect();
+            _client.Disconnect();
         }
 
-        private void MessageReceived(object sender, MessageReceivedEventArgs e)
+        private void MessageReceived(JabbRMessage jabbrMessage, string roomName)
         {
-            Guard.NullParameter(sender, () => sender);
-            Guard.NullParameter(e, () => e);
+            Guard.NullParameter(jabbrMessage, () => jabbrMessage);
+            Guard.NullParameter(roomName, () => roomName);
 
-            if (e.Context.User.Name == _configuration.JabbrNick)
+            if (jabbrMessage.User.Name == _configuration.JabbrNick)
             {
                 return;
             }
 
-            var text = WebUtility.HtmlDecode(e.Message.Text);
+            var text = WebUtility.HtmlDecode(jabbrMessage.Content);
             var isBotAddressed = false;
 
             var addressMatch = _botAddressedMatcher.Match(text);
@@ -116,15 +129,15 @@
                 var message = new Message
                     {
                         Text = text,
-                        Type = e.Message.Type,
+                        Type = MessageType.Default,
                     };
 
                 var context = new PluginContext
                     {
                         IsBotAddressed = isBotAddressed,
                         BotName = _configuration.JabbrNick,
-                        Room = e.Context.Room,
-                        User = e.Context.User,
+                        Room = _rooms[roomName],
+                        User = jabbrMessage.User,
                         RavenSession = session,
                         RandomProvider = _randomProvider,
                         InventoryManager = _inventoryManager,

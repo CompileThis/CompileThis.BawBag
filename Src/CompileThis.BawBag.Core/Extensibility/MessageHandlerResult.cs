@@ -1,9 +1,9 @@
 ﻿namespace CompileThis.BawBag.Extensibility
 {
+    using JabbR.Client;
+    using JabbR.Client.Models;
     using System.Collections.Generic;
     using System.Linq;
-
-    using CompileThis.BawBag.Jabbr;
 
     public class MessageHandlerResult
     {
@@ -22,7 +22,7 @@
 
         public IEnumerable<MessageResponse> Responses { get; set; }
 
-        internal async void Execute(IJabbrClient client, Room room)
+        internal async void Execute(IJabbRClient client, Room room)
         {
             Guard.NullParameter(client, () => client);
             Guard.NullParameter(room, () => room);
@@ -37,11 +37,11 @@
                 switch (response.ResponseType)
                 {
                     case MessageHandlerResultResponseType.DefaultMessage:
-                        await client.SendDefaultMessage(response.ResponseText, room.Name);
+                        await client.Send(response.ResponseText, room.Name);
                         break;
 
                     case MessageHandlerResultResponseType.ActionMessage:
-                        await client.SendActionMessage(response.ResponseText, room.Name);
+                        await client.Send("/me " + response.ResponseText, room.Name);
                         break;
 
                     case MessageHandlerResultResponseType.Kick:

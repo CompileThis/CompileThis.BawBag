@@ -72,7 +72,6 @@
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Extensibility\Internal\VariableManagerFacts.cs" />
-    <Compile Include="Plugins\RandomChoices\ChooseHandlerFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -80,13 +79,12 @@
       <Project>{50e6d2e0-e022-487c-8dcf-b0b5286bc2e7}</Project>
       <Name>CompileThis.BawBag.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CompileThis.BawBag.Jabbr\CompileThis.BawBag.Jabbr.csproj">
-      <Project>{51c61bb4-94ed-48b5-ae36-9da30a3a9f5e}</Project>
-      <Name>CompileThis.BawBag.Jabbr</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Plugins\RandomChoices\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

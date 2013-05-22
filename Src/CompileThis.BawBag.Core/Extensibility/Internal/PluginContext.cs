@@ -1,7 +1,6 @@
 ﻿namespace CompileThis.BawBag.Extensibility.Internal
 {
-    using CompileThis.BawBag.Jabbr;
-
+    using JabbR.Client.Models;
     using Raven.Client;
 
     internal class PluginContext : IPluginContext

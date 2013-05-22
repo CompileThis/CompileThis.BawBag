@@ -3,7 +3,6 @@
     using System.Text.RegularExpressions;
 
     using CompileThis.BawBag.Extensibility;
-    using CompileThis.BawBag.Jabbr;
 
     internal class SexactlyHandler : MessageHandlerPluginBase
     {
