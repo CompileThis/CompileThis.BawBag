@@ -70,7 +70,9 @@
             _client = new JabbRClient(_configuration.JabbrUrl);
             _client.MessageReceived += MessageReceived;
 
+            Log.Info("Starting BawBag: Connecting");
             var logOnInfo = await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
+            Log.Info("Starting BawBag: Connected");
             foreach (var room in logOnInfo.Rooms)
             {
                 _rooms[room.Name] = room;
