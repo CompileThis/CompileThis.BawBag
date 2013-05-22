@@ -71,7 +71,16 @@
             _client.MessageReceived += MessageReceived;
 
             Log.Info("Starting BawBag: Connecting");
-            var logOnInfo = await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
+            JabbR.Client.Models.LogOnInfo logOnInfo;
+            try
+            {
+                logOnInfo = await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal("Failed to connect", ex);
+                throw;
+            }
             Log.Info("Starting BawBag: Connected");
             foreach (var room in logOnInfo.Rooms)
             {
