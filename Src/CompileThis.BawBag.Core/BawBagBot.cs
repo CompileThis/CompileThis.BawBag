@@ -67,6 +67,8 @@
             _pluginManager = new PluginManager();
             _pluginManager.Initialize(_configuration.PluginsDirectory, _store);
 
+            ServicePointManager.DefaultConnectionLimit = 10;
+
             _client = new JabbRClient(_configuration.JabbrUrl);
             _client.MessageReceived += MessageReceived;
 
@@ -75,7 +77,6 @@
             try
             {
                 logOnInfo = await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
-                Console.WriteLine("iwejdeij");
             }
             catch (Exception ex)
             {
