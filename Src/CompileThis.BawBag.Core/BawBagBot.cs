@@ -75,6 +75,7 @@
             try
             {
                 logOnInfo = await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
+                Console.WriteLine("iwejdeij");
             }
             catch (Exception ex)
             {
