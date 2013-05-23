@@ -70,6 +70,8 @@
             ServicePointManager.DefaultConnectionLimit = 10;
 
             _client = new JabbRClient(_configuration.JabbrUrl);
+            _client.AutoReconnect = true;
+
             _client.MessageReceived += MessageReceived;
 
             Log.Info("Starting BawBag: Connecting");
