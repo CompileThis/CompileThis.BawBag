@@ -26,7 +26,7 @@
 
 			foreach (var messageHandler in _messageHandlers)
 			{
-				Log.Info("Applying handler: {0}", messageHandler.Name);
+				Log.Trace("Applying handler: {0}", messageHandler.Name);
 
 				try
 				{
@@ -36,7 +36,7 @@
 					var continueProcessing = !result.IsHandled || messageHandler.ContinueProcessing;
 					if (!continueProcessing)
 					{
-						Log.Info("Terminating message processing after: {0}.", messageHandler.Name);
+						Log.Trace("Terminating message processing after: {0}.", messageHandler.Name);
 						break;
 					}
 				}

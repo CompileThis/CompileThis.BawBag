@@ -92,7 +92,8 @@
 			Log.Info("Starting BawBag: Connected");
 			foreach (var room in logOnInfo.Rooms)
 			{
-				_rooms[room.Name] = room;
+				var fullRoom = await _client.GetRoomInfo(room.Name);
+				_rooms[room.Name] = fullRoom;
 			}
 
 			Log.Info("Started BawBag");
@@ -130,7 +131,7 @@
 			Guard.NullParameter(content, () => content);
 			Guard.NullParameter(roomName, () => roomName);
 
-			Log.Info("Received ACTION message: {0}, {1}, {2}", userName, roomName, content);
+			Log.Trace("Received ACTION message: {0}, {1}, {2}", userName, roomName, content);
 
 			if (userName == _configuration.JabbrNick)
 			{
@@ -148,7 +149,7 @@
 			Guard.NullParameter(jabbrMessage, () => jabbrMessage);
 			Guard.NullParameter(roomName, () => roomName);
 
-			Log.Info("Received DEFAULT message: {0}, {1}, {2}", jabbrMessage.User.Name, roomName, jabbrMessage.Content);
+			Log.Trace("Received DEFAULT message: {0}, {1}, {2}", jabbrMessage.User.Name, roomName, jabbrMessage.Content);
 
 			if (jabbrMessage.User.Name == _configuration.JabbrNick)
 			{

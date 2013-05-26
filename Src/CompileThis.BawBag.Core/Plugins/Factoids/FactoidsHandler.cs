@@ -17,8 +17,6 @@
 
 		protected override MessageHandlerResult ExecuteCore(Message message, IPluginContext context)
 		{
-			Log.Info("ENTER: Factoids Handler");
-
 			var responseTrigger = context.TextProcessor.SimplifyText(message.Text);
 			var factoidTrigger = responseTrigger.ToUpperInvariant();
 
