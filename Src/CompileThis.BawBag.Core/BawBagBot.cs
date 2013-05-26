@@ -124,11 +124,11 @@
 			_client.Disconnect();
 		}
 
-		private void MeMessageReceived(string userName, string content, string roomName)
+		private void MeMessageReceived(string userName, string roomName, string content)
 		{
 			Guard.NullParameter(userName, () => userName);
-			Guard.NullParameter(content, () => content);
 			Guard.NullParameter(roomName, () => roomName);
+			Guard.NullParameter(content, () => content);
 
 			Log.Info("Received ACTION message: {0}, {1}, {2}", userName, roomName, content);
 
