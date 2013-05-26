@@ -114,6 +114,7 @@
 		public async Task Stop()
 		{
 			_client.MessageReceived -= MessageReceived;
+			_client.MeMessageReceived -= MeMessageReceived;
 
 			foreach (var room in _configuration.Rooms)
 			{
