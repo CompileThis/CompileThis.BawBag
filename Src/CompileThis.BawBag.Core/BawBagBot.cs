@@ -130,6 +130,8 @@
 			Guard.NullParameter(content, () => content);
 			Guard.NullParameter(roomName, () => roomName);
 
+			Log.Info("Received ACTION message: {0}, {1}, {2}", userName, roomName, content);
+
 			if (userName == _configuration.JabbrNick)
 			{
 				return;
@@ -145,6 +147,8 @@
 		{
 			Guard.NullParameter(jabbrMessage, () => jabbrMessage);
 			Guard.NullParameter(roomName, () => roomName);
+
+			Log.Info("Received ACTION message: {0}, {1}, {2}", jabbrMessage.User.Name, roomName, jabbrMessage.Content);
 
 			if (jabbrMessage.User.Name == _configuration.JabbrNick)
 			{
