@@ -1,54 +1,60 @@
 ﻿namespace CompileThis.BawBag.Plugins.Factoids
 {
-    using System;
-    using System.Linq;
+	using System;
+	using System.Linq;
 
-    using CompileThis.BawBag.Extensibility;
+	using CompileThis.BawBag.Extensibility;
 
-    internal class FactoidsHandler : MessageHandlerPluginBase
-    {
-        public FactoidsHandler()
-            : base("Factoids", PluginPriority.Low, continueProcessing: false, mustBeAddressed: false)
-        { }
+	using NLog;
 
-        protected override MessageHandlerResult ExecuteCore(Message message, IPluginContext context)
-        {
-            var responseTrigger = context.TextProcessor.SimplifyText(message.Text);
-            var factoidTrigger = responseTrigger.ToUpperInvariant();
+	internal class FactoidsHandler : MessageHandlerPluginBase
+	{
+		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-            var factoid = context.RavenSession.Query<Factoid>().SingleOrDefault(x => x.Trigger == factoidTrigger);
-            if (factoid == null)
-            {
-                return NotHandled();
-            }
+		public FactoidsHandler()
+			: base("Factoids", PluginPriority.Low, continueProcessing: false, mustBeAddressed: false)
+		{ }
 
-            var matchingResponses = factoid.Responses.Where(x => !x.IsCaseSensitive || x.Trigger == responseTrigger).ToList();
-            var index = context.RandomProvider.Next(matchingResponses.Count);
+		protected override MessageHandlerResult ExecuteCore(Message message, IPluginContext context)
+		{
+			Log.Info("ENTER: Factoids Handler");
 
-            var factoidResponse = matchingResponses[index];
-            var responseText = context.TextProcessor.FormatPluginResponse(factoidResponse.Response, context);
+			var responseTrigger = context.TextProcessor.SimplifyText(message.Text);
+			var factoidTrigger = responseTrigger.ToUpperInvariant();
 
-            MessageResponse response;
+			var factoid = context.RavenSession.Query<Factoid>().SingleOrDefault(x => x.Trigger == factoidTrigger);
+			if (factoid == null)
+			{
+				return NotHandled();
+			}
 
-            switch (factoidResponse.ResponseType)
-            {
-                case FactoidResponseType.Is:
-                    response = Message("{0} is {1}", message.Text, responseText);
-                    break;
+			var matchingResponses = factoid.Responses.Where(x => !x.IsCaseSensitive || x.Trigger == responseTrigger).ToList();
+			var index = context.RandomProvider.Next(matchingResponses.Count);
 
-                case FactoidResponseType.Action:
-                    response = Action(responseText);
-                    break;
+			var factoidResponse = matchingResponses[index];
+			var responseText = context.TextProcessor.FormatPluginResponse(factoidResponse.Response, context);
 
-                case FactoidResponseType.Reply:
-                    response = Message(responseText);
-                    break;
+			MessageResponse response;
 
-                default:
-                    throw new Exception("Unknown response type.");
-            }
+			switch (factoidResponse.ResponseType)
+			{
+				case FactoidResponseType.Is:
+					response = Message("{0} is {1}", message.Text, responseText);
+					break;
 
-            return Handled(response);
-        }
-    }
+				case FactoidResponseType.Action:
+					response = Action(responseText);
+					break;
+
+				case FactoidResponseType.Reply:
+					response = Message(responseText);
+					break;
+
+				default:
+					throw new Exception("Unknown response type.");
+			}
+
+			return Handled(response);
+		}
+	}
 }
