@@ -1,169 +1,195 @@
 ﻿namespace CompileThis.BawBag
 {
-    using System;
-    using System.Net;
-    using System.Reflection;
-    using System.Text.RegularExpressions;
-    using System.Threading.Tasks;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Net;
+	using System.Reflection;
+	using System.Text.RegularExpressions;
+	using System.Threading.Tasks;
 
-    using JabbR.Client;
-    using JabbRMessage = JabbR.Client.Models.Message;
+	using CompileThis.BawBag.Extensibility;
+	using CompileThis.BawBag.Extensibility.Internal;
 
-    using NLog;
+	using JabbR.Client;
 
-    using Raven.Client;
-    using Raven.Client.Document;
-    using Raven.Client.Indexes;
+	using NLog;
 
-    using CompileThis.BawBag.Extensibility;
-    using CompileThis.BawBag.Extensibility.Internal;
-    using System.Collections.Generic;   
+	using Raven.Client;
+	using Raven.Client.Document;
+	using Raven.Client.Indexes;
 
-    public class BawBagBot
-    {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+	using JabbRMessage = JabbR.Client.Models.Message;
+	using JabbRUser = JabbR.Client.Models.User;
+	using JabbRRoom = JabbR.Client.Models.Room;
 
-        private readonly BawBagBotConfiguration _configuration;
-        
-        private IJabbRClient _client;
-        private readonly IDocumentStore _store;
-        private readonly IRandomNumberProvider _randomProvider;
-        private readonly IInventoryManager _inventoryManager;
-        private readonly ITextProcessor _textProcessor;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IDictionary<string, JabbR.Client.Models.Room> _rooms;
-        private readonly Regex _botAddressedMatcher;
+	public class BawBagBot
+	{
+		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        private PluginManager _pluginManager;
+		private readonly BawBagBotConfiguration _configuration;
 
-        public BawBagBot()
-            : this(BawBagBotConfiguration.FromConfigFile())
-        { }
+		private IJabbRClient _client;
+		private readonly IDocumentStore _store;
+		private readonly IRandomNumberProvider _randomProvider;
+		private readonly IInventoryManager _inventoryManager;
+		private readonly ITextProcessor _textProcessor;
+		private readonly IDateTimeProvider _dateTimeProvider;
+		private readonly IDictionary<string, JabbR.Client.Models.Room> _rooms;
+		private readonly Regex _botAddressedMatcher;
 
-        public BawBagBot(BawBagBotConfiguration configuration)
-        {
-            Guard.NullParameter(configuration, () => configuration);
+		private PluginManager _pluginManager;
 
-            _configuration = configuration;
+		public BawBagBot()
+			: this(BawBagBotConfiguration.FromConfigFile())
+		{ }
 
-            _store = new DocumentStore { ConnectionStringName = "RavenDB" };
-            _randomProvider = new RandomNumberProvider();
-            _inventoryManager = new InventoryManager(5, _store, _randomProvider);
-            _textProcessor = new TextProcessor();
-            _dateTimeProvider = new DefaultDateTimeProvider();
+		public BawBagBot(BawBagBotConfiguration configuration)
+		{
+			Guard.NullParameter(configuration, () => configuration);
 
-            _rooms = new Dictionary<string, JabbR.Client.Models.Room>();
-            _botAddressedMatcher = new Regex("^@?" + _configuration.JabbrNick + "[,: ](.*)$", RegexOptions.IgnoreCase);
-        }
+			_configuration = configuration;
 
-        public async Task Start()
-        {
-            Log.Info("Starting BawBag");
-            Log.Info("Connecting to '{0}' as '{1}'.", _configuration.JabbrUrl, _configuration.JabbrNick);
+			_store = new DocumentStore { ConnectionStringName = "RavenDB" };
+			_randomProvider = new RandomNumberProvider();
+			_inventoryManager = new InventoryManager(5, _store, _randomProvider);
+			_textProcessor = new TextProcessor();
+			_dateTimeProvider = new DefaultDateTimeProvider();
 
-            _store.Initialize();
-            IndexCreation.CreateIndexes(Assembly.GetExecutingAssembly(), _store);
+			_rooms = new Dictionary<string, JabbR.Client.Models.Room>();
+			_botAddressedMatcher = new Regex("^@?" + _configuration.JabbrNick + "[,: ](.*)$", RegexOptions.IgnoreCase);
+		}
 
-            _pluginManager = new PluginManager();
-            _pluginManager.Initialize(_configuration.PluginsDirectory, _store);
+		public async Task Start()
+		{
+			Log.Info("Starting BawBag");
+			Log.Info("Connecting to '{0}' as '{1}'.", _configuration.JabbrUrl, _configuration.JabbrNick);
 
-            ServicePointManager.DefaultConnectionLimit = 10;
+			_store.Initialize();
+			IndexCreation.CreateIndexes(Assembly.GetExecutingAssembly(), _store);
 
-            _client = new JabbRClient(_configuration.JabbrUrl);
-            _client.AutoReconnect = true;
+			_pluginManager = new PluginManager();
+			_pluginManager.Initialize(_configuration.PluginsDirectory, _store);
 
-            _client.MessageReceived += MessageReceived;
+			ServicePointManager.DefaultConnectionLimit = 10;
 
-            Log.Info("Starting BawBag: Connecting");
-            JabbR.Client.Models.LogOnInfo logOnInfo;
-            try
-            {
-                logOnInfo = await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
-            }
-            catch (Exception ex)
-            {
-                Log.Fatal("Failed to connect", ex);
-                throw;
-            }
-            Log.Info("Starting BawBag: Connected");
-            foreach (var room in logOnInfo.Rooms)
-            {
-                _rooms[room.Name] = room;
-            }
+			_client = new JabbRClient(_configuration.JabbrUrl) { AutoReconnect = true };
 
-            Log.Info("Started BawBag");
+			_client.MessageReceived += MessageReceived;
+			_client.MeMessageReceived += MeMessageReceived;
 
-            foreach (var roomName in _configuration.Rooms)
-            {
-                if (_rooms.ContainsKey(roomName))
-                {
-                    continue;
-                }
+			Log.Info("Starting BawBag: Connecting");
+			JabbR.Client.Models.LogOnInfo logOnInfo;
+			try
+			{
+				logOnInfo = await _client.Connect(_configuration.JabbrNick, _configuration.JabbrPassword);
+			}
+			catch (Exception ex)
+			{
+				Log.Fatal("Failed to connect", ex);
+				throw;
+			}
+			Log.Info("Starting BawBag: Connected");
+			foreach (var room in logOnInfo.Rooms)
+			{
+				_rooms[room.Name] = room;
+			}
 
-                await _client.JoinRoom(roomName);
-                var room = await _client.GetRoomInfo(roomName);
+			Log.Info("Started BawBag");
 
-                _rooms[roomName] = room;
-            }
-        }
+			foreach (var roomName in _configuration.Rooms)
+			{
+				if (_rooms.ContainsKey(roomName))
+				{
+					continue;
+				}
 
-        public async Task Stop()
-        {
-            _client.MessageReceived -= MessageReceived;
+				await _client.JoinRoom(roomName);
+				var room = await _client.GetRoomInfo(roomName);
 
-            foreach (var room in _configuration.Rooms)
-            {
-                await _client.LeaveRoom(room);
-            }
+				_rooms[roomName] = room;
+			}
+		}
 
-            _client.Disconnect();
-        }
+		public async Task Stop()
+		{
+			_client.MessageReceived -= MessageReceived;
 
-        private void MessageReceived(JabbRMessage jabbrMessage, string roomName)
-        {
-            Guard.NullParameter(jabbrMessage, () => jabbrMessage);
-            Guard.NullParameter(roomName, () => roomName);
+			foreach (var room in _configuration.Rooms)
+			{
+				await _client.LeaveRoom(room);
+			}
 
-            if (jabbrMessage.User.Name == _configuration.JabbrNick)
-            {
-                return;
-            }
+			_client.Disconnect();
+		}
 
-            var text = WebUtility.HtmlDecode(jabbrMessage.Content);
-            var isBotAddressed = false;
+		private void MeMessageReceived(string userName, string content, string roomName)
+		{
+			Guard.NullParameter(userName, () => userName);
+			Guard.NullParameter(content, () => content);
+			Guard.NullParameter(roomName, () => roomName);
 
-            var addressMatch = _botAddressedMatcher.Match(text);
-            if (addressMatch.Success)
-            {
-                isBotAddressed = true;
-                text = addressMatch.Groups[1].Value.Trim();
-            }
+			if (userName == _configuration.JabbrNick)
+			{
+				return;
+			}
 
-            using (var session = _store.OpenSession())
-            {
-                var message = new Message
-                    {
-                        Text = text,
-                        Type = MessageType.Default,
-                    };
+			var room = _rooms[roomName];
+			var user = room.Users.Single(u => u.Name == userName);
 
-                var context = new PluginContext
-                    {
-                        IsBotAddressed = isBotAddressed,
-                        BotName = _configuration.JabbrNick,
-                        Room = _rooms[roomName],
-                        User = jabbrMessage.User,
-                        RavenSession = session,
-                        RandomProvider = _randomProvider,
-                        InventoryManager = _inventoryManager,
-                        TextProcessor = _textProcessor,
-                        DateTimeProvider = _dateTimeProvider
-                    };
+			this.MessageReceivedCore(MessageType.Action, content, user, room);
+		}
 
-                _pluginManager.ProcessMessage(message, context, _client);
+		private void MessageReceived(JabbRMessage jabbrMessage, string roomName)
+		{
+			Guard.NullParameter(jabbrMessage, () => jabbrMessage);
+			Guard.NullParameter(roomName, () => roomName);
 
-                session.SaveChanges();
-            }
-        }
-    }
+			if (jabbrMessage.User.Name == _configuration.JabbrNick)
+			{
+				return;
+			}
+
+			this.MessageReceivedCore(MessageType.Default, jabbrMessage.Content, jabbrMessage.User, _rooms[roomName]);
+		}
+
+		private void MessageReceivedCore(MessageType type, string content, JabbRUser user, JabbRRoom room)
+		{
+			var text = WebUtility.HtmlDecode(content);
+			var isBotAddressed = false;
+
+			var addressMatch = _botAddressedMatcher.Match(text);
+			if (addressMatch.Success)
+			{
+				isBotAddressed = true;
+				text = addressMatch.Groups[1].Value.Trim();
+			}
+
+			using (var session = _store.OpenSession())
+			{
+				var message = new Message
+						{
+							Text = text,
+							Type = type,
+						};
+
+				var context = new PluginContext
+						{
+							IsBotAddressed = isBotAddressed,
+							BotName = _configuration.JabbrNick,
+							Room = room,
+							User = user,
+							RavenSession = session,
+							RandomProvider = _randomProvider,
+							InventoryManager = _inventoryManager,
+							TextProcessor = _textProcessor,
+							DateTimeProvider = _dateTimeProvider
+						};
+
+				_pluginManager.ProcessMessage(message, context, _client);
+
+				session.SaveChanges();
+			}
+		}
+	}
 }
