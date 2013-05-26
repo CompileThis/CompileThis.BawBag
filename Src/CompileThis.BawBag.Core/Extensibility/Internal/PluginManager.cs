@@ -1,58 +1,64 @@
 ﻿namespace CompileThis.BawBag.Extensibility.Internal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using System.Linq;
+	using System.Reflection;
 
-    using Raven.Client;
-    using JabbR.Client;
+	using NLog;
 
-    internal class PluginManager
-    {
-        private IEnumerable<IMessageHandlerPlugin> _messageHandlers;
+	using Raven.Client;
 
-        public void ProcessMessage(Message message, IPluginContext context, IJabbRClient client)
-        {
-            Guard.NullParameter(message, () => message);
-            Guard.NullParameter(context, () => context);
-            Guard.NullParameter(client, () => client);
+	using JabbR.Client;
 
-            foreach (var messageHandler in _messageHandlers)
-            {
-                var result = messageHandler.Execute(message, context);
-                result.Execute(client, context.Room);
+	internal class PluginManager
+	{
+		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-                var continueProcessing = !result.IsHandled || messageHandler.ContinueProcessing;
-                if (!continueProcessing)
-                {
-                    break;
-                }
-            }
-        }
+		private IEnumerable<IMessageHandlerPlugin> _messageHandlers;
 
-        public void Initialize(string pluginsDirectory, IDocumentStore documentStore)
-        {
-            Guard.NullParameter(pluginsDirectory, () => pluginsDirectory);
+		public void ProcessMessage(Message message, IPluginContext context, IJabbRClient client)
+		{
+			Guard.NullParameter(message, () => message);
+			Guard.NullParameter(context, () => context);
+			Guard.NullParameter(client, () => client);
 
-            var absolutePluginsDirectory = Path.Combine(Assembly.GetEntryAssembly().Location, pluginsDirectory);
+			foreach (var messageHandler in _messageHandlers)
+			{
+				var result = messageHandler.Execute(message, context);
+				result.Execute(client, context.Room);
 
-            var assembly = Assembly.GetExecutingAssembly();
+				var continueProcessing = !result.IsHandled || messageHandler.ContinueProcessing;
+				if (!continueProcessing)
+				{
+					Log.Info("Terminating message processing after: {0}.", messageHandler.Name);
+					break;
+				}
+			}
+		}
 
-            var handlerTypes = assembly.GetTypes().Where(x => x.IsClass && !x.IsAbstract && typeof(IPlugin).IsAssignableFrom(x));
+		public void Initialize(string pluginsDirectory, IDocumentStore documentStore)
+		{
+			Guard.NullParameter(pluginsDirectory, () => pluginsDirectory);
 
-            var messageHandlers = (
-                    from handlerType in handlerTypes
-                    where typeof(IMessageHandlerPlugin).IsAssignableFrom(handlerType)
-                    select (IMessageHandlerPlugin)Activator.CreateInstance(handlerType)).ToList();
+			var absolutePluginsDirectory = Path.Combine(Assembly.GetEntryAssembly().Location, pluginsDirectory);
 
-            _messageHandlers = messageHandlers.OrderBy(x => x.Priority).ThenBy(x => x.Name).ToList();
+			var assembly = Assembly.GetExecutingAssembly();
 
-            foreach (var messageHandler in _messageHandlers)
-            {
-                messageHandler.Initialize(documentStore);
-            }
-        }
-    }
+			var handlerTypes = assembly.GetTypes().Where(x => x.IsClass && !x.IsAbstract && typeof(IPlugin).IsAssignableFrom(x));
+
+			var messageHandlers = (
+							from handlerType in handlerTypes
+							where typeof(IMessageHandlerPlugin).IsAssignableFrom(handlerType)
+							select (IMessageHandlerPlugin)Activator.CreateInstance(handlerType)).ToList();
+
+			_messageHandlers = messageHandlers.OrderBy(x => x.Priority).ThenBy(x => x.Name).ToList();
+
+			foreach (var messageHandler in _messageHandlers)
+			{
+				messageHandler.Initialize(documentStore);
+			}
+		}
+	}
 }
