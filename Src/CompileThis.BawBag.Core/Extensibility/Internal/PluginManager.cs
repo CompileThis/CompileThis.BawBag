@@ -26,14 +26,23 @@
 
 			foreach (var messageHandler in _messageHandlers)
 			{
-				var result = messageHandler.Execute(message, context);
-				result.Execute(client, context.Room);
+				Log.Info("Applying handler: {0}", messageHandler.Name);
 
-				var continueProcessing = !result.IsHandled || messageHandler.ContinueProcessing;
-				if (!continueProcessing)
+				try
 				{
-					Log.Info("Terminating message processing after: {0}.", messageHandler.Name);
-					break;
+					var result = messageHandler.Execute(message, context);
+					result.Execute(client, context.Room);
+
+					var continueProcessing = !result.IsHandled || messageHandler.ContinueProcessing;
+					if (!continueProcessing)
+					{
+						Log.Info("Terminating message processing after: {0}.", messageHandler.Name);
+						break;
+					}
+				}
+				catch (Exception ex)
+				{
+					Log.ErrorException("Error applying handler: " + messageHandler.Name, ex);
 				}
 			}
 		}
