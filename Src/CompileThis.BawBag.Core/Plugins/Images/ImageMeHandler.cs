@@ -54,7 +54,7 @@
 				var imageResults = imageQuery.Execute().ToList();
 
 				var index = context.RandomProvider.Next(imageResults.Count);
-				var url = imageResults[index].SourceUrl;
+				var url = imageResults[index].MediaUrl;
 
 				return this.Handled(this.Message(url));
 			}
