@@ -53,6 +53,7 @@
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Services.Client" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -92,6 +93,8 @@
     <Compile Include="Plugins\Factoids\FactiodResponse.cs" />
     <Compile Include="Plugins\Factoids\Factoid.cs" />
     <Compile Include="Plugins\Factoids\FactoidResponseType.cs" />
+    <Compile Include="Plugins\Images\Bing.cs" />
+    <Compile Include="Plugins\Images\ImageMeHandler.cs" />
     <Compile Include="Plugins\Inventory\EditInventoryHandler.cs" />
     <Compile Include="Plugins\Karma\ApplyKarmaHandler.cs" />
     <Compile Include="Plugins\Karma\Karma.cs" />
