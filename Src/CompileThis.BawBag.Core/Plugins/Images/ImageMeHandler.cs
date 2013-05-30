@@ -52,18 +52,21 @@
 
 				var imageQuery = bingContainer.Image(query, null, null, null, null, null, null);
 				var imageResults = imageQuery.Execute();
-				
-				if (imageResults == null)
+
+				if (imageResults != null)
 				{
-					var response = context.TextProcessor.FormatPluginResponse("Really? Do you kiss ${SOMEONE}'s mum with that mouth?", context);
-					return this.Handled(this.Message(response));
+					var imageList = imageResults.ToList();
+					if (imageList.Count > 0)
+					{
+						var index = context.RandomProvider.Next(imageList.Count);
+						var url = imageList[index].MediaUrl;
+
+						return this.Handled(this.Message(url));
+					}
 				}
 
-				var imageList = imageResults.ToList();
-				var index = context.RandomProvider.Next(imageList.Count);
-				var url = imageList[index].MediaUrl;
-
-				return this.Handled(this.Message(url));
+				var response = context.TextProcessor.FormatPluginResponse("Really? Do you kiss ${SOMEONE}'s mum with that mouth?", context);
+				return this.Handled(this.Message(response));
 			}
 			catch (Exception ex)
 			{
