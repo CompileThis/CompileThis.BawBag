@@ -1,6 +1,5 @@
 ﻿namespace CompileThis.BawBag.Extensibility
 {
-    using JabbR.Client.Models;
     using Raven.Client;
 
     public interface IPluginContext

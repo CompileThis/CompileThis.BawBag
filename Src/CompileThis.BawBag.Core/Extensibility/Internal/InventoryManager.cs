@@ -4,7 +4,6 @@
     using System.Linq;
 
     using Raven.Client;
-    using JabbR.Client.Models;
 
     internal class InventoryManager : IInventoryManager
     {

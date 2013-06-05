@@ -114,6 +114,8 @@
     <Compile Include="Extensibility\MessageHandlerResultResponseType.cs" />
     <Compile Include="Extensibility\MessageResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Room.cs" />
+    <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
